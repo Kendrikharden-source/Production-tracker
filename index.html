@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Production Tracker</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow:      #f59e0b;
+      --yellow-dark: #d97706;
+      --yellow-pale: #fef9ee;
+      --yellow-soft: #fef3c7;
+      --green:       #16a34a;
+      --green-pale:  #f0fdf4;
+      --red:         #dc2626;
+      --red-pale:    #fff1f1;
+      --bg:          #f8f7f4;
+      --card:        #ffffff;
+      --border:      #e5e1d8;
+      --text:        #1a1714;
+      --muted:       #78716c;
+      --muted-light: #a8a29e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--yellow);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(245,158,11,0.25);
+    }
+    header h1 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+    #live-clock { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; }
+
+    /* ── SCREENS ── */
+    .screen { display: none; flex: 1; flex-direction: column; }
+    .screen.active { display: flex; }
+
+    /* ── JOB SELECT SCREEN ── */
+    #screen-select { padding: 20px; gap: 14px; }
+    #screen-select h2 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
+    #screen-select p { color: var(--muted); font-size: 15px; margin-bottom: 4px; }
+
+    .job-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .job-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .job-card:active { transform: scale(0.98); }
+    .job-card.selected {
+      border-color: var(--yellow);
+      background: var(--yellow-pale);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.18);
+    }
+    .job-card .job-name { font-size: 18px; font-weight: 700; color: var(--text); }
+    .job-card .job-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+    .add-job-btn {
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      color: var(--muted-light);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .add-job-btn:active { opacity: 0.7; }
+    .add-job-btn:hover  { border-color: var(--yellow); color: var(--yellow-dark); }
+
+    .start-btn {
+      margin-top: auto;
+      padding-top: 16px;
+    }
+
+    /* ── TRACKING SCREEN ── */
+    #screen-track {
+      padding: 24px 20px;
+      align-items: center;
+      gap: 20px;
+      background: var(--bg);
+    }
+
+    .track-job-name {
+      font-size: 26px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.2;
+      color: var(--text);
+    }
+    .track-job-meta { font-size: 15px; color: var(--muted); text-align: center; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 6px 20px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .status-badge.running { background: var(--green-pale); color: var(--green); border: 1.5px solid #bbf7d0; }
+    .status-badge.paused  { background: var(--yellow-soft); color: var(--yellow-dark); border: 1.5px solid #fde68a; }
+
+    .elapsed-display {
+      font-size: 72px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -2px;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .elapsed-label { font-size: 13px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 1.5px; }
+
+    .track-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+    }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 22px;
+      border: none;
+      border-radius: 16px;
+      font-size: 22px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform 0.1s, opacity 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.3px;
+    }
+    .btn:active { transform: scale(0.97); opacity: 0.88; }
+    .btn:disabled { opacity: 0.3; cursor: default; }
+
+    .btn-yellow { background: var(--yellow);  color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
+    .btn-green  { background: var(--green);   color: #fff; box-shadow: 0 4px 14px rgba(22,163,74,0.30); }
+    .btn-red    { background: var(--red);     color: #fff; box-shadow: 0 4px 14px rgba(220,38,38,0.25); }
+    .btn-ghost  {
+      background: var(--card);
+      color: var(--muted);
+      border: 2px solid var(--border);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      font-size: 18px;
+    }
+
+    /* START button gets yellow treatment */
+    #btn-start { background: var(--yellow); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
+
+    /* ── END DAY SCREEN ── */
+    #screen-endday {
+      padding: 24px 20px;
+      gap: 16px;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+    #screen-endday h2 { font-size: 24px; font-weight: 800; color: var(--text); }
+    #screen-endday > p { color: var(--muted); font-size: 15px; }
+
+    .summary-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .summary-card h3 {
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--muted-light);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { color: var(--muted); }
+    .stat-row .value { font-weight: 700; color: var(--text); }
+
+    .log-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 15px;
+      gap: 12px;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-entry .log-name { font-weight: 700; flex: 1; color: var(--text); }
+    .log-entry .log-time { color: var(--yellow-dark); font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .log-entry .log-pauses { color: var(--muted-light); font-size: 13px; margin-top: 2px; }
+
+    /* ── ADD JOB MODAL ── */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,23,20,0.45);
+      backdrop-filter: blur(2px);
+      z-index: 100;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal {
+      background: var(--card);
+      border-radius: 24px 24px 0 0;
+      padding: 24px 20px 44px;
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
+    }
+    .modal h3 { font-size: 20px; font-weight: 800; color: var(--text); }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted-light);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      font-weight: 700;
+    }
+    .field input, .field select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 17px;
+      padding: 14px;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--yellow);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+
+    .modal-actions { display: flex; gap: 10px; }
+    .modal-actions .btn { font-size: 18px; padding: 16px; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     HEADER
+═══════════════════════════════════════ -->
+<header>
+  <h1>🖨️ Production</h1>
+  <div id="live-clock">--:--</div>
+</header>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1 — SELECT JOB
+═══════════════════════════════════════ -->
+<div id="screen-select" class="screen active">
+  <h2>Select a Job</h2>
+  <p>Tap a job, then press Start.</p>
+
+  <div class="job-list" id="job-list"></div>
+
+  <button class="add-job-btn" onclick="openAddJob()">+ Add Job</button>
+
+  <div class="start-btn">
+    <button class="btn btn-green" id="btn-start" disabled onclick="startTracking()">▶ START</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2 — TRACKING
+═══════════════════════════════════════ -->
+<div id="screen-track" class="screen">
+  <div class="track-job-name" id="track-name">Job Name</div>
+  <div class="track-job-meta" id="track-meta"></div>
+
+  <span class="status-badge running" id="status-badge">Running</span>
+
+  <div>
+    <div class="elapsed-display" id="elapsed-display">00:00:00</div>
+    <div class="elapsed-label" style="text-align:center; margin-top:6px;">Time on job today</div>
+  </div>
+
+  <div class="track-actions">
+    <button class="btn btn-yellow" id="btn-pause" onclick="togglePause()">⏸ PAUSE</button>
+    <button class="btn btn-red"    onclick="endDay()">⏹ END DAY</button>
+    <button class="btn btn-ghost"  onclick="switchJob()" style="font-size:17px;">↩ Switch Job</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 3 — END OF DAY SUMMARY
+═══════════════════════════════════════ -->
+<div id="screen-endday" class="screen">
+  <h2>Day Complete 🎉</h2>
+  <p id="endday-date"></p>
+
+  <div class="summary-card">
+    <h3>Today's Summary</h3>
+    <div class="stat-row"><span class="label">Jobs Run</span><span class="value" id="sum-jobs">0</span></div>
+    <div class="stat-row"><span class="label">Total Production Time</span><span class="value" id="sum-total">0h 0m</span></div>
+    <div class="stat-row"><span class="label">Total Pauses</span><span class="value" id="sum-pauses">0</span></div>
+  </div>
+
+  <div class="summary-card">
+    <h3>Job Breakdown</h3>
+    <div id="job-log"></div>
+  </div>
+
+  <button class="btn btn-yellow" onclick="newDay()" style="margin-top:4px;">Start New Day</button>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADD JOB MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h3>Add Job</h3>
+    <div class="field">
+      <label>Job Name / Order #</label>
+      <input type="text" id="input-name" placeholder="e.g. Smith Order — 144 tees" />
+    </div>
+    <div class="field">
+      <label>Quantity</label>
+      <input type="number" id="input-qty" placeholder="e.g. 144" inputmode="numeric" />
+    </div>
+    <div class="field">
+      <label>Type</label>
+      <select id="input-type">
+        <option value="Screen Print (Auto)">Screen Print — Auto Press</option>
+        <option value="Screen Print (Manual)">Screen Print — Manual Press</option>
+        <option value="Embroidery">Embroidery</option>
+        <option value="Wholesale">Wholesale / Blind Ship</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Cancel</button>
+      <button class="btn btn-yellow" onclick="saveJob()"  style="flex:2">Add Job</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const STATE_KEY = 'pt_state_v1';
+const JOBS_KEY  = 'pt_jobs_v1';
+const LOG_KEY   = 'pt_log_v1';
+
+let jobs        = JSON.parse(localStorage.getItem(JOBS_KEY)  || '[]');
+let dayLog      = JSON.parse(localStorage.getItem(LOG_KEY)   || '[]');
+let selectedJob = null;
+
+// Active timer state
+let timerInterval = null;
+let sessionStart  = null;   // Date when current run segment started
+let elapsedMs     = 0;      // Total elapsed ms (excluding current segment)
+let isPaused      = false;
+let pauseCount    = 0;
+
+// ═══════════════════════════════════════
+// CLOCK
+// ═══════════════════════════════════════
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('live-clock').textContent = `${h}:${m}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══════════════════════════════════════
+// SCREENS
+// ═══════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// JOB LIST
+// ═══════════════════════════════════════
+function renderJobs() {
+  const list = document.getElementById('job-list');
+  list.innerHTML = '';
+  jobs.forEach((job, i) => {
+    const card = document.createElement('div');
+    card.className = 'job-card' + (selectedJob === i ? ' selected' : '');
+    card.innerHTML = `
+      <div class="job-name">${job.name}</div>
+      <div class="job-meta">${job.type} · ${job.qty ? job.qty + ' pcs' : 'qty TBD'}</div>
+    `;
+    card.onclick = () => selectJob(i);
+    list.appendChild(card);
+  });
+  document.getElementById('btn-start').disabled = selectedJob === null;
+}
+
+function selectJob(i) {
+  selectedJob = i;
+  renderJobs();
+}
+
+// ═══════════════════════════════════════
+// ADD JOB MODAL
+// ═══════════════════════════════════════
+function openAddJob() {
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-qty').value  = '';
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(() => document.getElementById('input-name').focus(), 300);
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+function saveJob() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { alert('Please enter a job name.'); return; }
+  const qty  = document.getElementById('input-qty').value.trim();
+  const type = document.getElementById('input-type').value;
+  jobs.push({ name, qty, type });
+  localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+  closeModal();
+  renderJobs();
+}
+
+// ═══════════════════════════════════════
+// START TRACKING
+// ═══════════════════════════════════════
+function startTracking() {
+  if (selectedJob === null) return;
+  const job = jobs[selectedJob];
+
+  // Reset timer for this job session
+  elapsedMs    = 0;
+  pauseCount   = 0;
+  isPaused     = false;
+  sessionStart = Date.now();
+
+  document.getElementById('track-name').textContent = job.name;
+  document.getElementById('track-meta').textContent = `${job.type} · ${job.qty ? job.qty + ' pcs' : ''}`;
+  setBadge('running');
+  document.getElementById('btn-pause').textContent = '⏸ PAUSE';
+
+  showScreen('screen-track');
+  startTimer();
+}
+
+// ═══════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(tickTimer, 500);
+}
+
+function tickTimer() {
+  if (isPaused) return;
+  const total = elapsedMs + (Date.now() - sessionStart);
+  document.getElementById('elapsed-display').textContent = msToHMS(total);
+}
+
+function msToHMS(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function msToHM(ms) {
+  const totalMin = Math.floor(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const m = totalMin % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+// ═══════════════════════════════════════
+// PAUSE / RESUME
+// ═══════════════════════════════════════
+function togglePause() {
+  if (!isPaused) {
+    // Pausing — bank the elapsed time
+    elapsedMs += Date.now() - sessionStart;
+    sessionStart = null;
+    isPaused = true;
+    pauseCount++;
+    setBadge('paused');
+    document.getElementById('btn-pause').textContent = '▶ RESUME';
+  } else {
+    // Resuming
+    sessionStart = Date.now();
+    isPaused = false;
+    setBadge('running');
+    document.getElementById('btn-pause').textContent = '⏸ PAUSE';
+  }
+}
+
+function setBadge(state) {
+  const badge = document.getElementById('status-badge');
+  if (state === 'running') {
+    badge.textContent = 'Running';
+    badge.className = 'status-badge running';
+  } else {
+    badge.textContent = 'Paused';
+    badge.className = 'status-badge paused';
+  }
+}
+
+// ═══════════════════════════════════════
+// SWITCH JOB
+// ═══════════════════════════════════════
+function switchJob() {
+  // Bank the current session into day log first
+  bankCurrentSession();
+  clearInterval(timerInterval);
+  showScreen('screen-select');
+  renderJobs();
+}
+
+function bankCurrentSession() {
+  if (selectedJob === null) return;
+  const job = jobs[selectedJob];
+  let finalMs = elapsedMs;
+  if (!isPaused && sessionStart) finalMs += Date.now() - sessionStart;
+  if (finalMs < 1000) return; // Don't log if < 1 second
+
+  // Merge with existing log entry for this job today
+  const existing = dayLog.find(e => e.jobIndex === selectedJob);
+  if (existing) {
+    existing.ms += finalMs;
+    existing.pauses += pauseCount;
+  } else {
+    dayLog.push({ jobIndex: selectedJob, name: job.name, ms: finalMs, pauses: pauseCount });
+  }
+  localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
+}
+
+// ═══════════════════════════════════════
+// END DAY
+// ═══════════════════════════════════════
+function endDay() {
+  bankCurrentSession();
+  clearInterval(timerInterval);
+
+  // Build summary
+  const totalMs = dayLog.reduce((sum, e) => sum + e.ms, 0);
+  const totalPauses = dayLog.reduce((sum, e) => sum + e.pauses, 0);
+
+  document.getElementById('sum-jobs').textContent   = dayLog.length;
+  document.getElementById('sum-total').textContent  = msToHM(totalMs);
+  document.getElementById('sum-pauses').textContent = totalPauses;
+
+  const now = new Date();
+  document.getElementById('endday-date').textContent =
+    now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+
+  const logEl = document.getElementById('job-log');
+  logEl.innerHTML = '';
+  if (dayLog.length === 0) {
+    logEl.innerHTML = '<div style="color:var(--muted); padding:10px 0;">No jobs logged today.</div>';
+  } else {
+    dayLog.forEach(entry => {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = `
+        <div>
+          <div class="log-name">${entry.name}</div>
+          <div class="log-pauses">${entry.pauses} pause${entry.pauses !== 1 ? 's' : ''}</div>
+        </div>
+        <div class="log-time">${msToHM(entry.ms)}</div>
+      `;
+      logEl.appendChild(div);
+    });
+  }
+
+  showScreen('screen-endday');
+}
+
+// ═══════════════════════════════════════
+// NEW DAY
+// ═══════════════════════════════════════
+function newDay() {
+  dayLog = [];
+  localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
+  selectedJob  = null;
+  elapsedMs    = 0;
+  pauseCount   = 0;
+  isPaused     = false;
+  sessionStart = null;
+  showScreen('screen-select');
+  renderJobs();
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+renderJobs();
+</script>
+</body>
+</html>
