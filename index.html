@@ -16,6 +16,8 @@
       --green-pale:  #f0fdf4;
       --red:         #dc2626;
       --red-pale:    #fff1f1;
+      --blue:        #3b82f6;
+      --blue-pale:   #eff6ff;
       --bg:          #f8f7f4;
       --card:        #ffffff;
       --border:      #e5e1d8;
@@ -46,16 +48,17 @@
     header h1 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.12); }
     .header-right { display: flex; align-items: center; gap: 14px; }
     #live-clock { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; }
+    #header-employee {
+      font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.2); border-radius: 8px;
+      padding: 4px 10px; display: none;
+    }
     #btn-settings {
       background: rgba(255,255,255,0.22);
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 20px;
-      width: 36px; height: 36px;
+      border: none; border-radius: 8px; color: #fff;
+      font-size: 20px; width: 36px; height: 36px;
       display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      cursor: pointer; -webkit-tap-highlight-color: transparent;
     }
     #btn-settings:active { opacity: 0.7; }
 
@@ -63,242 +66,403 @@
     .screen { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .screen.active { display: flex; }
 
-    /* ── JOB SELECT SCREEN ── */
+    /* ══════════════════════════════════════
+       SCREEN 0 — EMPLOYEE PICKER
+    ══════════════════════════════════════ */
+    #screen-employee {
+      padding: 32px 20px 24px;
+      gap: 16px;
+      align-items: center;
+    }
+    #screen-employee h2 {
+      font-size: 26px; font-weight: 800; text-align: center; color: var(--text);
+    }
+    #screen-employee .subtitle {
+      color: var(--muted); font-size: 16px; text-align: center; margin-top: -6px;
+    }
+    .employee-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+      max-width: 480px;
+    }
+    .emp-btn {
+      background: var(--card);
+      border: 2.5px solid var(--border);
+      border-radius: 18px;
+      padding: 28px 12px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .emp-btn:active { transform: scale(0.96); }
+    .emp-btn:hover  { border-color: var(--yellow); }
+    .emp-btn .emp-avatar {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 900;
+      background: var(--yellow-soft); color: var(--yellow-dark);
+    }
+    .emp-btn .emp-name { font-size: 18px; font-weight: 800; }
+
+    /* ══════════════════════════════════════
+       SCREEN 0B — PIN ENTRY
+    ══════════════════════════════════════ */
+    #screen-pin {
+      padding: 40px 24px 32px;
+      align-items: center;
+      gap: 20px;
+    }
+    #screen-pin h2 { font-size: 24px; font-weight: 800; text-align: center; }
+    #screen-pin .subtitle { color: var(--muted); font-size: 16px; text-align: center; }
+    .pin-dots {
+      display: flex; gap: 14px; justify-content: center; margin: 8px 0;
+    }
+    .pin-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      border: 2.5px solid var(--border);
+      background: transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .pin-dot.filled { background: var(--yellow); border-color: var(--yellow); }
+    .pin-error { color: var(--red); font-size: 14px; font-weight: 600; min-height: 20px; text-align: center; }
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 300px;
+    }
+    .pin-key {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 22px 8px;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.1s, transform 0.1s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .pin-key:active { transform: scale(0.93); background: var(--yellow-soft); }
+    .pin-key.del { font-size: 20px; color: var(--muted); }
+    .pin-key.empty { background: transparent; border-color: transparent; box-shadow: none; cursor: default; }
+    #btn-pin-back {
+      background: none; border: none; color: var(--muted);
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      padding: 8px 0; -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ══════════════════════════════════════
+       SCREEN 1 — SELECT JOB
+    ══════════════════════════════════════ */
     #screen-select { padding: 20px; gap: 14px; }
     #screen-select h2 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
     #screen-select .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 4px; }
 
-    /* Printavo status banner */
     .sync-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 10px;
+      font-size: 14px; font-weight: 600;
     }
-    .sync-bar.loading  { background: var(--yellow-soft); color: var(--yellow-dark); }
-    .sync-bar.success  { background: var(--green-pale);  color: var(--green); }
-    .sync-bar.error    { background: var(--red-pale);    color: var(--red); }
-    .sync-bar.offline  { background: #f5f5f4;            color: var(--muted); }
+    .sync-bar.loading { background: var(--yellow-soft); color: var(--yellow-dark); }
+    .sync-bar.success { background: var(--green-pale);  color: var(--green); }
+    .sync-bar.error   { background: var(--red-pale);    color: var(--red); }
+    .sync-bar.offline { background: #f5f5f4;            color: var(--muted); }
     .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .sync-bar.loading .sync-dot  { background: var(--yellow); animation: pulse 1s infinite; }
-    .sync-bar.success .sync-dot  { background: var(--green); }
-    .sync-bar.error   .sync-dot  { background: var(--red); }
-    .sync-bar.offline .sync-dot  { background: var(--muted-light); }
+    .sync-bar.loading .sync-dot { background: var(--yellow); animation: pulse 1s infinite; }
+    .sync-bar.success .sync-dot { background: var(--green); }
+    .sync-bar.error   .sync-dot { background: var(--red); }
+    .sync-bar.offline .sync-dot { background: var(--muted-light); }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     .job-list { display: flex; flex-direction: column; gap: 10px; }
-
     .job-card {
-      background: var(--card);
-      border: 2px solid var(--border);
-      border-radius: 14px;
-      padding: 16px 20px;
-      cursor: pointer;
-      transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
+      background: var(--card); border: 2px solid var(--border);
+      border-radius: 14px; padding: 16px 20px;
+      cursor: pointer; transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent; user-select: none;
       box-shadow: 0 1px 3px rgba(0,0,0,0.06);
     }
     .job-card:active { transform: scale(0.98); }
     .job-card.selected {
-      border-color: var(--yellow);
-      background: var(--yellow-pale);
+      border-color: var(--yellow); background: var(--yellow-pale);
       box-shadow: 0 0 0 3px rgba(245,158,11,0.18);
     }
     .job-card .job-name  { font-size: 17px; font-weight: 700; color: var(--text); }
     .job-card .job-meta  { font-size: 13px; color: var(--muted); margin-top: 4px; }
     .job-card .job-badge {
-      display: inline-block;
-      margin-top: 6px;
-      padding: 2px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      background: var(--yellow-soft);
-      color: var(--yellow-dark);
+      display: inline-block; margin-top: 6px; padding: 2px 8px;
+      border-radius: 6px; font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      background: var(--yellow-soft); color: var(--yellow-dark);
     }
-
     .add-job-btn {
-      background: transparent;
-      border: 2px dashed var(--border);
-      border-radius: 14px;
-      padding: 15px;
-      color: var(--muted-light);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
+      background: transparent; border: 2px dashed var(--border);
+      border-radius: 14px; padding: 15px;
+      color: var(--muted-light); font-size: 15px; font-weight: 600;
+      cursor: pointer; text-align: center;
       -webkit-tap-highlight-color: transparent;
       transition: border-color 0.15s, color 0.15s;
     }
     .add-job-btn:active { opacity: 0.7; }
-
     .start-btn { margin-top: auto; padding-top: 16px; }
 
-    /* ── TRACKING SCREEN ── */
+    /* ══════════════════════════════════════
+       SCREEN 1B — STAGE PICKER
+    ══════════════════════════════════════ */
+    #screen-stage {
+      padding: 24px 20px;
+      gap: 14px;
+      align-items: stretch;
+    }
+    #screen-stage h2 { font-size: 22px; font-weight: 800; }
+    #screen-stage .subtitle { color: var(--muted); font-size: 15px; margin-top: -4px; }
+    #stage-job-label {
+      background: var(--yellow-pale); border: 1.5px solid var(--yellow-soft);
+      border-radius: 12px; padding: 12px 16px;
+      font-size: 15px; font-weight: 700; color: var(--yellow-dark);
+    }
+    .stage-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stage-btn {
+      background: var(--card); border: 2.5px solid var(--border);
+      border-radius: 14px; padding: 20px 10px;
+      font-size: 15px; font-weight: 700; color: var(--text);
+      cursor: pointer; text-align: center;
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      -webkit-tap-highlight-color: transparent;
+      transition: border-color 0.15s, background 0.15s, transform 0.1s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .stage-btn:active { transform: scale(0.96); }
+    .stage-btn.selected {
+      border-color: var(--yellow); background: var(--yellow-pale);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+    .stage-btn .stage-icon { font-size: 26px; }
+    #btn-stage-back {
+      background: none; border: none; color: var(--muted);
+      font-size: 16px; font-weight: 600; cursor: pointer;
+      padding: 6px 0; -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ══════════════════════════════════════
+       SCREEN 2 — TRACKING
+    ══════════════════════════════════════ */
     #screen-track {
       padding: 24px 20px;
       align-items: center;
-      gap: 20px;
+      gap: 18px;
       background: var(--bg);
     }
-    .track-job-name { font-size: 26px; font-weight: 800; text-align: center; line-height: 1.2; color: var(--text); }
+    .track-who {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 10px; padding: 8px 14px;
+      font-size: 14px; font-weight: 700; color: var(--muted);
+    }
+    .track-who .who-name { color: var(--text); }
+    .track-who .who-stage {
+      background: var(--yellow-soft); color: var(--yellow-dark);
+      border-radius: 6px; padding: 2px 8px;
+      font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .track-job-name { font-size: 24px; font-weight: 800; text-align: center; line-height: 1.2; color: var(--text); }
     .track-job-meta { font-size: 15px; color: var(--muted); text-align: center; }
-
     .status-badge {
-      display: inline-block;
-      padding: 6px 20px;
-      border-radius: 99px;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      display: inline-block; padding: 6px 20px; border-radius: 99px;
+      font-size: 13px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
     }
     .status-badge.running { background: var(--green-pale); color: var(--green); border: 1.5px solid #bbf7d0; }
     .status-badge.paused  { background: var(--yellow-soft); color: var(--yellow-dark); border: 1.5px solid #fde68a; }
-
     .elapsed-display {
-      font-size: 72px;
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -2px;
-      line-height: 1;
-      color: var(--text);
+      font-size: 72px; font-weight: 800; font-variant-numeric: tabular-nums;
+      letter-spacing: -2px; line-height: 1; color: var(--text);
     }
     .elapsed-label { font-size: 13px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 1.5px; }
-
     .track-actions { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .track-secondary { display: flex; gap: 10px; }
+    .track-secondary .btn { flex: 1; font-size: 16px; padding: 16px; }
+
+    /* ══════════════════════════════════════
+       SCREEN 2B — END SESSION NOTES
+    ══════════════════════════════════════ */
+    #screen-notes {
+      padding: 32px 24px;
+      gap: 18px;
+      align-items: stretch;
+    }
+    #screen-notes h2 { font-size: 22px; font-weight: 800; }
+    #screen-notes .subtitle { color: var(--muted); font-size: 15px; }
+    #notes-job-label {
+      background: var(--yellow-pale); border: 1.5px solid var(--yellow-soft);
+      border-radius: 12px; padding: 12px 16px;
+      font-size: 15px; font-weight: 700; color: var(--yellow-dark);
+    }
+    #notes-summary {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 12px; padding: 14px 16px;
+      display: flex; justify-content: space-between;
+      font-size: 15px;
+    }
+    #notes-summary .ns-label { color: var(--muted); }
+    #notes-summary .ns-value { font-weight: 800; color: var(--text); }
+    #input-notes {
+      width: 100%; background: var(--card);
+      border: 2px solid var(--border); border-radius: 14px;
+      color: var(--text); font-size: 16px; padding: 16px;
+      outline: none; font-family: inherit; resize: none;
+      min-height: 100px; line-height: 1.5;
+    }
+    #input-notes:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+    #notes-skip { color: var(--muted); font-size: 15px; font-weight: 600; text-align: center; cursor: pointer; padding: 8px; }
+    #notes-skip:active { opacity: 0.6; }
+
+    /* ══════════════════════════════════════
+       SCREEN 3 — END OF DAY SUMMARY
+    ══════════════════════════════════════ */
+    #screen-endday { padding: 24px 20px; gap: 16px; background: var(--bg); }
+    #screen-endday h2 { font-size: 24px; font-weight: 800; color: var(--text); }
+    #screen-endday > p { color: var(--muted); font-size: 15px; }
+    .summary-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .summary-card h3 {
+      font-size: 12px; font-weight: 700; margin-bottom: 12px;
+      color: var(--muted-light); text-transform: uppercase; letter-spacing: 1px;
+    }
+    .stat-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px;
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-row .label { color: var(--muted); }
+    .stat-row .value { font-weight: 700; color: var(--text); }
+    .log-entry {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 15px; gap: 12px;
+    }
+    .log-entry:last-child { border-bottom: none; }
+    .log-entry .log-name   { font-weight: 700; flex: 1; color: var(--text); }
+    .log-entry .log-sub    { color: var(--muted-light); font-size: 12px; margin-top: 2px; }
+    .log-entry .log-time   { color: var(--yellow-dark); font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    /* My Hours card */
+    .my-hours-card {
+      background: var(--blue-pale); border: 1.5px solid #bfdbfe;
+      border-radius: 14px; padding: 16px 18px;
+    }
+    .my-hours-card h3 { color: #1d4ed8; margin-bottom: 10px; }
+
+    /* ══════════════════════════════════════
+       SCREEN 4 — SETTINGS
+    ══════════════════════════════════════ */
+    #screen-settings { padding: 20px; gap: 16px; background: var(--bg); }
+    #screen-settings h2 { font-size: 22px; font-weight: 800; }
+    #screen-settings p  { color: var(--muted); font-size: 15px; line-height: 1.5; }
+    .settings-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .settings-card h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .settings-card p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .field label {
+      display: block; font-size: 12px; color: var(--muted-light);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700;
+    }
+    .field input, .field select {
+      width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 10px; color: var(--text); font-size: 16px;
+      padding: 13px 14px; outline: none; -webkit-appearance: none; font-family: inherit;
+    }
+    .field input:focus, .field select:focus {
+      border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+    }
+    .token-input-wrap { position: relative; }
+    .token-input-wrap input { padding-right: 48px; font-family: monospace; font-size: 14px; }
+    .toggle-vis {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 18px;
+      color: var(--muted-light); -webkit-tap-highlight-color: transparent;
+    }
+    .connection-result {
+      padding: 12px 14px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none;
+    }
+    .connection-result.success { background: var(--green-pale); color: var(--green); display: block; }
+    .connection-result.error   { background: var(--red-pale);   color: var(--red);   display: block; }
+
+    /* Employee list in settings */
+    .emp-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+    }
+    .emp-row:last-child { border-bottom: none; }
+    .emp-row .emp-avatar-sm {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--yellow-soft); color: var(--yellow-dark);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 900; flex-shrink: 0;
+    }
+    .emp-row .emp-info { flex: 1; }
+    .emp-row .emp-info .emp-info-name { font-size: 15px; font-weight: 700; }
+    .emp-row .emp-info .emp-info-role { font-size: 12px; color: var(--muted); }
+    .emp-action-btn {
+      background: none; border: 1.5px solid var(--border); border-radius: 8px;
+      color: var(--muted); font-size: 13px; font-weight: 600;
+      padding: 6px 10px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    }
+    .emp-action-btn:active { opacity: 0.6; }
+    .emp-action-btn.danger { border-color: #fca5a5; color: var(--red); }
 
     /* ── BUTTONS ── */
     .btn {
-      display: block;
-      width: 100%;
-      padding: 22px;
-      border: none;
-      border-radius: 16px;
-      font-size: 22px;
-      font-weight: 800;
-      cursor: pointer;
-      text-align: center;
-      -webkit-tap-highlight-color: transparent;
+      display: block; width: 100%; padding: 22px; border: none;
+      border-radius: 16px; font-size: 22px; font-weight: 800;
+      cursor: pointer; text-align: center; -webkit-tap-highlight-color: transparent;
       transition: transform 0.1s, opacity 0.15s, box-shadow 0.15s;
       letter-spacing: 0.3px;
     }
     .btn:active { transform: scale(0.97); opacity: 0.88; }
     .btn:disabled { opacity: 0.3; cursor: default; transform: none !important; }
-
     .btn-yellow { background: var(--yellow); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
     .btn-green  { background: var(--green);  color: #fff; box-shadow: 0 4px 14px rgba(22,163,74,0.30); }
     .btn-red    { background: var(--red);    color: #fff; box-shadow: 0 4px 14px rgba(220,38,38,0.25); }
     .btn-ghost  { background: var(--card); color: var(--muted); border: 2px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 18px; }
-    #btn-start  { background: var(--yellow); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
-
-    /* ── END DAY SCREEN ── */
-    #screen-endday { padding: 24px 20px; gap: 16px; background: var(--bg); }
-    #screen-endday h2 { font-size: 24px; font-weight: 800; color: var(--text); }
-    #screen-endday > p { color: var(--muted); font-size: 15px; }
-
-    .summary-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-    }
-    .summary-card h3 { font-size: 12px; font-weight: 700; margin-bottom: 12px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 1px; }
-
-    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
-    .stat-row:last-child { border-bottom: none; }
-    .stat-row .label { color: var(--muted); }
-    .stat-row .value { font-weight: 700; color: var(--text); }
-
-    .log-entry { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 15px; gap: 12px; }
-    .log-entry:last-child { border-bottom: none; }
-    .log-entry .log-name   { font-weight: 700; flex: 1; color: var(--text); }
-    .log-entry .log-time   { color: var(--yellow-dark); font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
-    .log-entry .log-pauses { color: var(--muted-light); font-size: 13px; margin-top: 2px; }
-
-    /* ── SETTINGS SCREEN ── */
-    #screen-settings { padding: 20px; gap: 16px; background: var(--bg); }
-    #screen-settings h2 { font-size: 22px; font-weight: 800; }
-    #screen-settings p  { color: var(--muted); font-size: 15px; line-height: 1.5; }
-
-    .settings-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-    .settings-card h3 { font-size: 15px; font-weight: 700; color: var(--text); }
-    .settings-card p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-    .field label { display: block; font-size: 12px; color: var(--muted-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
-    .field input, .field select {
-      width: 100%;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 16px;
-      padding: 13px 14px;
-      outline: none;
-      -webkit-appearance: none;
-      font-family: inherit;
-    }
-    .field input:focus, .field select:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
-
-    .token-input-wrap { position: relative; }
-    .token-input-wrap input { padding-right: 48px; font-family: monospace; font-size: 14px; }
-    .toggle-vis {
-      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-      background: none; border: none; cursor: pointer; font-size: 18px; color: var(--muted-light);
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .connection-result {
-      padding: 12px 14px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      display: none;
-    }
-    .connection-result.success { background: var(--green-pale); color: var(--green); display: block; }
-    .connection-result.error   { background: var(--red-pale);   color: var(--red);   display: block; }
 
     /* ── MODALS ── */
     .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(26,23,20,0.45);
-      backdrop-filter: blur(2px);
-      z-index: 100;
-      align-items: flex-end;
-      justify-content: center;
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,23,20,0.45); backdrop-filter: blur(2px);
+      z-index: 100; align-items: flex-end; justify-content: center;
     }
     .modal-overlay.open { display: flex; }
-
     .modal {
-      background: var(--card);
-      border-radius: 24px 24px 0 0;
-      padding: 24px 20px 44px;
-      width: 100%;
-      max-width: 540px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      background: var(--card); border-radius: 24px 24px 0 0;
+      padding: 24px 20px 44px; width: 100%; max-width: 540px;
+      display: flex; flex-direction: column; gap: 14px;
       box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
     }
     .modal h3 { font-size: 20px; font-weight: 800; color: var(--text); }
+    .modal p { font-size: 15px; color: var(--muted); line-height: 1.5; }
     .modal-actions { display: flex; gap: 10px; }
     .modal-actions .btn { font-size: 18px; padding: 16px; }
   </style>
@@ -311,16 +475,58 @@
 <header>
   <h1>🖨️ Production</h1>
   <div class="header-right">
+    <div id="header-employee"></div>
     <div id="live-clock">--:--</div>
-    <button id="btn-settings" onclick="showScreen('screen-settings')" title="Settings">⚙️</button>
+    <button id="btn-settings" onclick="openSettings()" title="Settings">⚙️</button>
   </div>
 </header>
 
 <!-- ══════════════════════════════════════
+     SCREEN 0 — EMPLOYEE PICKER
+═══════════════════════════════════════ -->
+<div id="screen-employee" class="screen active">
+  <h2>Who's working?</h2>
+  <p class="subtitle">Tap your name to get started.</p>
+  <div class="employee-grid" id="employee-grid">
+    <!-- Built dynamically -->
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 0B — PIN ENTRY
+═══════════════════════════════════════ -->
+<div id="screen-pin" class="screen">
+  <h2 id="pin-title">Enter PIN</h2>
+  <p class="subtitle" id="pin-subtitle">Enter your 4-digit PIN</p>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="dot-0"></div>
+    <div class="pin-dot" id="dot-1"></div>
+    <div class="pin-dot" id="dot-2"></div>
+    <div class="pin-dot" id="dot-3"></div>
+  </div>
+  <div class="pin-error" id="pin-error"></div>
+  <div class="pin-keypad">
+    <button class="pin-key" onclick="pinPress('1')">1</button>
+    <button class="pin-key" onclick="pinPress('2')">2</button>
+    <button class="pin-key" onclick="pinPress('3')">3</button>
+    <button class="pin-key" onclick="pinPress('4')">4</button>
+    <button class="pin-key" onclick="pinPress('5')">5</button>
+    <button class="pin-key" onclick="pinPress('6')">6</button>
+    <button class="pin-key" onclick="pinPress('7')">7</button>
+    <button class="pin-key" onclick="pinPress('8')">8</button>
+    <button class="pin-key" onclick="pinPress('9')">9</button>
+    <button class="pin-key empty"></button>
+    <button class="pin-key" onclick="pinPress('0')">0</button>
+    <button class="pin-key del" onclick="pinDelete()">⌫</button>
+  </div>
+  <button id="btn-pin-back" onclick="showScreen('screen-employee')">← Back</button>
+</div>
+
+<!-- ══════════════════════════════════════
      SCREEN 1 — SELECT JOB
 ═══════════════════════════════════════ -->
-<div id="screen-select" class="screen active">
-  <h2>Select a Job</h2>
+<div id="screen-select" class="screen">
+  <h2 id="select-heading">Select a Job</h2>
   <p class="subtitle">Tap a job, then press Start.</p>
 
   <div id="sync-bar" class="sync-bar offline">
@@ -330,18 +536,43 @@
   </div>
 
   <div class="job-list" id="job-list"></div>
-
   <button class="add-job-btn" onclick="openAddJob()">+ Add Job Manually</button>
 
   <div class="start-btn">
-    <button class="btn" id="btn-start" disabled onclick="startTracking()">▶ START</button>
+    <button class="btn btn-yellow" id="btn-start" disabled onclick="goToStageSelect()">▶ START</button>
   </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 1B — STAGE PICKER
+═══════════════════════════════════════ -->
+<div id="screen-stage" class="screen">
+  <h2>What stage?</h2>
+  <p class="subtitle">Pick the stage you're about to work on.</p>
+  <div id="stage-job-label"></div>
+  <div class="stage-grid">
+    <button class="stage-btn" onclick="selectStage('Screens')"    data-stage="Screens">    <span class="stage-icon">🖼️</span>Screens</button>
+    <button class="stage-btn" onclick="selectStage('Setup')"      data-stage="Setup">      <span class="stage-icon">⚙️</span>Setup</button>
+    <button class="stage-btn" onclick="selectStage('Printing')"   data-stage="Printing">   <span class="stage-icon">🖨️</span>Printing</button>
+    <button class="stage-btn" onclick="selectStage('Embroidery')" data-stage="Embroidery"> <span class="stage-icon">🧵</span>Embroidery</button>
+    <button class="stage-btn" onclick="selectStage('Folding')"    data-stage="Folding">    <span class="stage-icon">👕</span>Folding</button>
+    <button class="stage-btn" onclick="selectStage('QC')"         data-stage="QC">         <span class="stage-icon">✅</span>QC</button>
+    <button class="stage-btn" onclick="selectStage('Shipping')"   data-stage="Shipping">   <span class="stage-icon">📦</span>Shipping</button>
+    <button class="stage-btn" onclick="selectStage('Other')"      data-stage="Other">      <span class="stage-icon">📋</span>Other</button>
+  </div>
+  <button id="btn-stage-back" onclick="showScreen('screen-select')">← Back to jobs</button>
 </div>
 
 <!-- ══════════════════════════════════════
      SCREEN 2 — TRACKING
 ═══════════════════════════════════════ -->
 <div id="screen-track" class="screen">
+  <div class="track-who" id="track-who">
+    <span id="track-who-name" class="who-name">—</span>
+    <span>on</span>
+    <span id="track-who-stage" class="who-stage">—</span>
+  </div>
+
   <div class="track-job-name" id="track-name">Job Name</div>
   <div class="track-job-meta" id="track-meta"></div>
 
@@ -349,14 +580,33 @@
 
   <div style="text-align:center;">
     <div class="elapsed-display" id="elapsed-display">00:00:00</div>
-    <div class="elapsed-label" style="margin-top:6px;">Time on job today</div>
+    <div class="elapsed-label" style="margin-top:6px;">Time on this session</div>
   </div>
 
   <div class="track-actions">
     <button class="btn btn-yellow" id="btn-pause" onclick="togglePause()">⏸ PAUSE</button>
-    <button class="btn btn-red"    onclick="endDay()">⏹ END DAY</button>
-    <button class="btn btn-ghost"  onclick="switchJob()" style="font-size:17px;">↩ Switch Job</button>
+    <div class="track-secondary">
+      <button class="btn btn-ghost" onclick="switchJob()">↩ Switch Job</button>
+      <button class="btn btn-red"   onclick="endSession()">⏹ END</button>
+    </div>
+    <button class="btn btn-ghost" onclick="confirmEndDay()" style="font-size:16px; padding:16px; color:var(--muted);">🏁 END DAY</button>
   </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCREEN 2B — END SESSION NOTES
+═══════════════════════════════════════ -->
+<div id="screen-notes" class="screen">
+  <h2>Any notes?</h2>
+  <p class="subtitle">Optional — tap Save to skip, or leave a note for this session.</p>
+  <div id="notes-job-label"></div>
+  <div id="notes-summary">
+    <span class="ns-label">Time logged</span>
+    <span class="ns-value" id="notes-time">—</span>
+  </div>
+  <textarea id="input-notes" placeholder="e.g. Had to re-register, 2 misprints, press was running slow…" rows="4"></textarea>
+  <button class="btn btn-yellow" onclick="saveSession()">💾 Save Session</button>
+  <div id="notes-skip" onclick="saveSession()">Skip — no notes</div>
 </div>
 
 <!-- ══════════════════════════════════════
@@ -366,15 +616,20 @@
   <h2>Day Complete 🎉</h2>
   <p id="endday-date"></p>
 
+  <div id="my-hours-section" class="my-hours-card" style="display:none;">
+    <h3 style="color:#1d4ed8; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:10px;">My Hours Today</h3>
+    <div id="my-hours-content"></div>
+  </div>
+
   <div class="summary-card">
     <h3>Today's Summary</h3>
-    <div class="stat-row"><span class="label">Jobs Run</span><span class="value" id="sum-jobs">0</span></div>
+    <div class="stat-row"><span class="label">Sessions Logged</span><span class="value" id="sum-sessions">0</span></div>
     <div class="stat-row"><span class="label">Total Production Time</span><span class="value" id="sum-total">0h 0m</span></div>
     <div class="stat-row"><span class="label">Total Pauses</span><span class="value" id="sum-pauses">0</span></div>
   </div>
 
   <div class="summary-card">
-    <h3>Job Breakdown</h3>
+    <h3>Session Breakdown</h3>
     <div id="job-log"></div>
   </div>
 
@@ -386,31 +641,36 @@
 ═══════════════════════════════════════ -->
 <div id="screen-settings" class="screen">
   <h2>⚙️ Settings</h2>
-  <p>Connect your Printavo account so jobs load automatically. Your token is saved on this device only and never shared.</p>
 
+  <!-- Employee Management -->
+  <div class="settings-card">
+    <h3>👥 Employees</h3>
+    <p>Manage who can log time. The owner (Kendrik) has full access. Crew members track time only.</p>
+    <div id="emp-list-settings"></div>
+    <button class="btn btn-ghost" onclick="openAddEmployee()" style="font-size:16px; padding:14px;">
+      + Add Employee
+    </button>
+  </div>
+
+  <!-- Printavo -->
   <div class="settings-card">
     <h3>Printavo Connection</h3>
     <p>Find your API token in Printavo under <strong>Account → API</strong>.</p>
-
     <div class="field">
       <label>Printavo Email</label>
       <input type="email" id="set-email" placeholder="you@yourshop.com" autocomplete="email" />
     </div>
-
     <div class="field">
       <label>API Token</label>
       <div class="token-input-wrap">
         <input type="password" id="set-token" placeholder="Paste your token here" autocomplete="off" />
-        <button class="toggle-vis" onclick="toggleTokenVis()" id="vis-btn">👁</button>
+        <button class="toggle-vis" onclick="toggleTokenVis()">👁</button>
       </div>
     </div>
-
     <div id="connection-result" class="connection-result"></div>
-
     <button class="btn btn-yellow" onclick="saveAndTestPrintavo()" id="btn-connect" style="font-size:17px; padding:16px;">
       Save &amp; Test Connection
     </button>
-
     <button class="btn btn-ghost" onclick="clearPrintavoSettings()" style="font-size:15px; padding:13px;">
       Clear Saved Credentials
     </button>
@@ -418,18 +678,18 @@
 
   <div class="settings-card">
     <h3>About</h3>
-    <p>Production Tracker MVP · Built for your shop 🖨️</p>
+    <p>Production Tracker · Imagine Apparel 🖨️<br>Version 2.0 — Employee &amp; Stage Tracking</p>
   </div>
 
-  <button class="btn btn-ghost" onclick="goBackFromSettings()" style="font-size:17px; padding:16px; margin-bottom: 8px;">
-    ← Back to Jobs
+  <button class="btn btn-ghost" onclick="goBackFromSettings()" style="font-size:17px; padding:16px; margin-bottom:8px;">
+    ← Back
   </button>
 </div>
 
 <!-- ══════════════════════════════════════
      ADD JOB MODAL
 ═══════════════════════════════════════ -->
-<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+<div class="modal-overlay" id="modal-addjob" onclick="closeModalOutside(event,'modal-addjob')">
   <div class="modal">
     <h3>Add Job Manually</h3>
     <div class="field">
@@ -451,8 +711,82 @@
       </select>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost"   onclick="closeModal()" style="flex:1">Cancel</button>
-      <button class="btn btn-yellow"  onclick="saveJob()"    style="flex:2">Add Job</button>
+      <button class="btn btn-ghost"  onclick="closeModal('modal-addjob')" style="flex:1">Cancel</button>
+      <button class="btn btn-yellow" onclick="saveJob()"                  style="flex:2">Add Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ADD EMPLOYEE MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-addemp" onclick="closeModalOutside(event,'modal-addemp')">
+  <div class="modal">
+    <h3>Add Employee</h3>
+    <div class="field">
+      <label>Name</label>
+      <input type="text" id="new-emp-name" placeholder="e.g. Maria" autocomplete="off" />
+    </div>
+    <div class="field">
+      <label>4-Digit PIN</label>
+      <input type="password" id="new-emp-pin" placeholder="Choose a PIN" inputmode="numeric" maxlength="4" />
+    </div>
+    <div class="field">
+      <label>Role</label>
+      <select id="new-emp-role">
+        <option value="crew">Crew — time tracking only</option>
+        <option value="owner">Owner — full access</option>
+      </select>
+    </div>
+    <p style="font-size:13px; color:var(--muted);">PIN is stored on this device. Make sure to set the same PIN on every device the employee uses.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost"  onclick="closeModal('modal-addemp')" style="flex:1">Cancel</button>
+      <button class="btn btn-yellow" onclick="saveEmployee()"             style="flex:2">Add Employee</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     CHANGE PIN MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-changepin" onclick="closeModalOutside(event,'modal-changepin')">
+  <div class="modal">
+    <h3 id="changepin-title">Change PIN</h3>
+    <div class="field">
+      <label>New 4-Digit PIN</label>
+      <input type="password" id="new-pin-input" placeholder="Enter new PIN" inputmode="numeric" maxlength="4" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost"  onclick="closeModal('modal-changepin')" style="flex:1">Cancel</button>
+      <button class="btn btn-yellow" onclick="saveNewPin()"                  style="flex:2">Save PIN</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     ACTIVE TIMER WARNING MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-timerwarning">
+  <div class="modal">
+    <h3>⚠️ Timer Already Running</h3>
+    <p id="timerwarning-msg">There's already an active timer running. What would you like to do?</p>
+    <div class="modal-actions" style="flex-direction:column; gap:10px;">
+      <button class="btn btn-red"    onclick="forceEndAndSwitch()" style="font-size:17px; padding:16px; width:100%;">End Current Timer &amp; Switch</button>
+      <button class="btn btn-ghost"  onclick="closeModal('modal-timerwarning')" style="font-size:17px; padding:16px; width:100%;">Keep Current Timer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     END DAY CONFIRM MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-endday">
+  <div class="modal">
+    <h3>End Your Day?</h3>
+    <p>This will save your current session and show you the day's summary.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost"  onclick="closeModal('modal-endday')" style="flex:1">Cancel</button>
+      <button class="btn btn-red"    onclick="endDay()"                   style="flex:2; font-size:18px; padding:16px;">End Day</button>
     </div>
   </div>
 </div>
@@ -461,24 +795,57 @@
 // ═══════════════════════════════════════
 // STORAGE KEYS
 // ═══════════════════════════════════════
-const JOBS_KEY    = 'pt_jobs_v1';
-const LOG_KEY     = 'pt_log_v1';
-const TOKEN_KEY   = 'pt_printavo_token';
-const EMAIL_KEY   = 'pt_printavo_email';
+const JOBS_KEY      = 'pt_jobs_v1';
+const LOG_KEY       = 'pt_log_v2';       // upgraded key — includes employee + stage
+const TOKEN_KEY     = 'pt_printavo_token';
+const EMAIL_KEY     = 'pt_printavo_email';
+const EMPLOYEES_KEY = 'pt_employees_v1';
+
+// ═══════════════════════════════════════
+// DEFAULT EMPLOYEES
+// ═══════════════════════════════════════
+const DEFAULT_EMPLOYEES = [
+  { name: 'Kendrik', pin: '0000', role: 'owner' },  // owner — will be prompted to change PIN on first use
+  { name: 'Amber',   pin: '1111', role: 'crew' },
+  { name: 'Andres',  pin: '2222', role: 'crew' },
+  { name: 'Brent',   pin: '3333', role: 'crew' },
+];
 
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let jobs        = JSON.parse(localStorage.getItem(JOBS_KEY) || '[]');
-let dayLog      = JSON.parse(localStorage.getItem(LOG_KEY)  || '[]');
-let selectedJob = null;
+let jobs          = JSON.parse(localStorage.getItem(JOBS_KEY) || '[]');
+let dayLog        = JSON.parse(localStorage.getItem(LOG_KEY)  || '[]');
+let employees     = JSON.parse(localStorage.getItem(EMPLOYEES_KEY) || 'null') || DEFAULT_EMPLOYEES;
 
-let timerInterval = null;
-let sessionStart  = null;
-let elapsedMs     = 0;
-let isPaused      = false;
-let pauseCount    = 0;
-let previousScreen = 'screen-select';
+let currentEmployee  = null;   // { name, role }
+let selectedJob      = null;   // index into jobs[]
+let selectedStage    = null;   // string
+
+let timerInterval    = null;
+let sessionStart     = null;
+let elapsedMs        = 0;
+let isPaused         = false;
+let pauseCount       = 0;
+
+// PIN entry state
+let pinBuffer        = '';
+let pinMode          = 'login';   // 'login' | 'set' | 'change' | 'owner-verify'
+let pinTargetEmp     = null;      // employee being changed
+let pendingAfterPin  = null;      // function to call after owner verification
+
+// Pending session (to be saved when notes screen is closed)
+let pendingSession   = null;
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function init() {
+  saveEmployees();  // Ensure defaults are saved if first run
+  renderEmployeeGrid();
+  renderJobs();
+  loadPrintavoJobs();
+}
 
 // ═══════════════════════════════════════
 // CLOCK
@@ -495,191 +862,256 @@ updateClock();
 // SCREENS
 // ═══════════════════════════════════════
 function showScreen(id) {
-  if (id === 'screen-settings') {
-    // Pre-fill saved credentials
-    const tok = localStorage.getItem(TOKEN_KEY) || '';
-    const em  = localStorage.getItem(EMAIL_KEY) || '';
-    document.getElementById('set-token').value = tok;
-    document.getElementById('set-email').value = em;
-    document.getElementById('connection-result').className = 'connection-result';
-    document.getElementById('connection-result').textContent = '';
-  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+  // Scroll to top
+  const el = document.getElementById(id);
+  if (el) el.scrollTop = 0;
 }
 
-function goBackFromSettings() {
+function updateHeaderEmployee() {
+  const el = document.getElementById('header-employee');
+  if (currentEmployee) {
+    el.textContent = currentEmployee.name;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+// ═══════════════════════════════════════
+// EMPLOYEE PICKER
+// ═══════════════════════════════════════
+function renderEmployeeGrid() {
+  const grid = document.getElementById('employee-grid');
+  grid.innerHTML = '';
+  employees.forEach((emp, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'emp-btn';
+    const initials = emp.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    btn.innerHTML = `
+      <div class="emp-avatar">${initials}</div>
+      <div class="emp-name">${emp.name}</div>
+      ${emp.role === 'owner' ? '<div style="font-size:11px;color:var(--yellow-dark);font-weight:700;">OWNER</div>' : ''}
+    `;
+    btn.onclick = () => startPinEntry(i, 'login');
+    grid.appendChild(btn);
+  });
+}
+
+// ═══════════════════════════════════════
+// PIN ENTRY
+// ═══════════════════════════════════════
+function startPinEntry(empIndex, mode) {
+  pinBuffer = '';
+  pinMode = mode;
+  pinTargetEmp = employees[empIndex];
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-title').textContent =
+    mode === 'login' ? `Hi, ${pinTargetEmp.name}!` : 'Enter New PIN';
+  document.getElementById('pin-subtitle').textContent =
+    mode === 'login' ? 'Enter your 4-digit PIN' : 'Choose a new 4-digit PIN';
+  showScreen('screen-pin');
+}
+
+function startOwnerVerify(afterFn) {
+  const owner = employees.find(e => e.role === 'owner');
+  if (!owner) return;
+  pinBuffer = '';
+  pinMode = 'owner-verify';
+  pinTargetEmp = owner;
+  pendingAfterPin = afterFn;
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-title').textContent = 'Owner Access';
+  document.getElementById('pin-subtitle').textContent = 'Enter the owner PIN to continue';
+  showScreen('screen-pin');
+}
+
+function pinPress(digit) {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += digit;
+  updatePinDots();
+  if (pinBuffer.length === 4) {
+    setTimeout(submitPin, 180);
+  }
+}
+
+function pinDelete() {
+  pinBuffer = pinBuffer.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+
+function submitPin() {
+  if (pinMode === 'login') {
+    if (pinBuffer === pinTargetEmp.pin) {
+      currentEmployee = pinTargetEmp;
+      pinBuffer = '';
+      updateHeaderEmployee();
+      // Check if timer is already running
+      if (timerInterval) {
+        document.getElementById('timerwarning-msg').textContent =
+          `A timer is already running. End it and switch to ${currentEmployee.name}, or keep the current timer?`;
+        openModal('modal-timerwarning');
+      } else {
+        showScreen('screen-select');
+        document.getElementById('select-heading').textContent =
+          `Pick a Job, ${currentEmployee.name}`;
+        renderJobs();
+      }
+    } else {
+      document.getElementById('pin-error').textContent = 'Incorrect PIN — try again';
+      pinBuffer = '';
+      updatePinDots();
+    }
+  } else if (pinMode === 'owner-verify') {
+    if (pinBuffer === pinTargetEmp.pin) {
+      pinBuffer = '';
+      const fn = pendingAfterPin;
+      pendingAfterPin = null;
+      if (fn) fn();
+    } else {
+      document.getElementById('pin-error').textContent = 'Incorrect owner PIN';
+      pinBuffer = '';
+      updatePinDots();
+    }
+  }
+}
+
+// ═══════════════════════════════════════
+// ACTIVE TIMER WARNING
+// ═══════════════════════════════════════
+function forceEndAndSwitch() {
+  closeModal('modal-timerwarning');
+  // Bank current session without notes
+  bankCurrentSession(null);
+  clearInterval(timerInterval);
+  timerInterval = null;
+  elapsedMs = 0; isPaused = false; pauseCount = 0; sessionStart = null; selectedJob = null; selectedStage = null;
   showScreen('screen-select');
+  document.getElementById('select-heading').textContent = `Pick a Job, ${currentEmployee.name}`;
   renderJobs();
 }
 
 // ═══════════════════════════════════════
-// PRINTAVO — GRAPHQL API
+// SETTINGS
 // ═══════════════════════════════════════
-// Cloudflare Worker proxy — forwards requests to Printavo and handles CORS
-const PROXY_URL = 'https://printavo-proxy.kendrikharden.workers.dev';
-
-async function printavoQuery(query, variables = {}) {
-  const token = localStorage.getItem(TOKEN_KEY);
-  const email = localStorage.getItem(EMAIL_KEY);
-  if (!token || !email) throw new Error('No credentials saved. Open Settings to connect Printavo.');
-
-  const res = await fetch(PROXY_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'email': email,
-      'token': token,
-    },
-    body: JSON.stringify({ query, variables }),
-  });
-
-  if (!res.ok) throw new Error(`API error ${res.status}`);
-  const json = await res.json();
-  if (json.errors) throw new Error(json.errors[0]?.message || 'GraphQL error');
-  return json.data;
-}
-
-async function loadPrintavoJobs() {
-  const syncBar = document.getElementById('sync-bar');
-  const syncMsg = document.getElementById('sync-msg');
-  const token   = localStorage.getItem(TOKEN_KEY);
-  const email   = localStorage.getItem(EMAIL_KEY);
-
-  if (!token || !email) {
-    syncBar.className = 'sync-bar offline';
-    syncMsg.textContent = 'Not connected — tap ⚙️ to set up Printavo';
-    return;
-  }
-
-  syncBar.className = 'sync-bar loading';
-  syncMsg.textContent = 'Loading jobs from Printavo…';
-
-  try {
-    // Fetch quotes — this is where active/in-production jobs live in Printavo
-    const query = `
-      query {
-        quotes(first: 25, sortOn: VISUAL_ID, sortDescending: true) {
-          nodes {
-            id
-            visualId
-            nickname
-            totalQuantity
-            contact {
-              fullName
-            }
-            status {
-              name
-            }
-            customerDueAt
-          }
-        }
-      }
-    `;
-
-    const data = await printavoQuery(query);
-    const orders = data?.quotes?.nodes || [];
-
-    // Only show screen print jobs marked as In Production or Ready for Production
-    const activeOrders = orders.filter(o => {
-      const status = (o.status?.name || '').toLowerCase();
-      return status === 'in production' || status === 'ready for production';
+function openSettings() {
+  // Only owner can access settings — verify first if not already logged in as owner
+  if (currentEmployee && currentEmployee.role === 'owner') {
+    loadSettings();
+    showScreen('screen-settings');
+  } else {
+    startOwnerVerify(() => {
+      currentEmployee = employees.find(e => e.role === 'owner');
+      updateHeaderEmployee();
+      loadSettings();
+      showScreen('screen-settings');
     });
-
-    if (activeOrders.length === 0) {
-      syncBar.className = 'sync-bar success';
-      syncMsg.textContent = 'Connected — no active orders found';
-      return;
-    }
-
-    // Convert to our job format, keeping manual jobs too
-    const printavoJobs = activeOrders.map(o => {
-      const qty = o.totalQuantity || '';
-      const customerName = o.contact?.fullName || 'Unknown Customer';
-      const orderId = o.visualId || o.id;
-      const nickname = o.nickname ? ` — ${o.nickname}` : '';
-      const due = o.customerDueAt ? ` · Due ${new Date(o.customerDueAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '';
-      return {
-        name: `#${orderId}${nickname} · ${customerName}`,
-        qty: qty || '',
-        type: 'Printavo Order',
-        meta: `${o.status?.name || 'Active'}${due}`,
-        source: 'printavo',
-        printavoId: o.id,
-      };
-    });
-
-    // Keep manual jobs, replace all printavo jobs
-    const manualJobs = jobs.filter(j => j.source !== 'printavo');
-    jobs = [...printavoJobs, ...manualJobs];
-    localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-
-    selectedJob = null;
-    renderJobs();
-
-    syncBar.className = printavoJobs.length > 0 ? 'sync-bar success' : 'sync-bar offline';
-    syncMsg.textContent = printavoJobs.length > 0
-      ? `✓ ${printavoJobs.length} job${printavoJobs.length !== 1 ? 's' : ''} in production`
-      : 'No jobs marked In Production or Ready for Production';
-  } catch (err) {
-    syncBar.className = 'sync-bar error';
-    syncMsg.textContent = `Connection failed: ${err.message}`;
-    console.error('Printavo error:', err);
   }
 }
 
-// ═══════════════════════════════════════
-// SETTINGS — SAVE & TEST
-// ═══════════════════════════════════════
-async function saveAndTestPrintavo() {
-  const token = document.getElementById('set-token').value.trim();
-  const email = document.getElementById('set-email').value.trim();
-  const resultEl = document.getElementById('connection-result');
-  const btn = document.getElementById('btn-connect');
-
-  if (!token || !email) {
-    resultEl.className = 'connection-result error';
-    resultEl.textContent = 'Please enter both your email and API token.';
-    return;
-  }
-
-  btn.textContent = 'Testing…';
-  btn.disabled = true;
-  resultEl.className = 'connection-result';
-  resultEl.textContent = '';
-
-  // Save first so our query function can use them
-  localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(EMAIL_KEY, email);
-
-  try {
-    const data = await printavoQuery(`{ account { companyName } }`);
-    const shopName = data?.account?.companyName || 'your shop';
-    resultEl.className = 'connection-result success';
-    resultEl.textContent = `✓ Connected to ${shopName}! Jobs will load automatically.`;
-    btn.textContent = '✓ Connected';
-  } catch (err) {
-    resultEl.className = 'connection-result error';
-    resultEl.textContent = `✗ ${err.message}. Double-check your email and token.`;
-    btn.textContent = 'Save & Test Connection';
-    btn.disabled = false;
-  }
-}
-
-function clearPrintavoSettings() {
-  if (!confirm('Remove saved Printavo credentials from this device?')) return;
-  localStorage.removeItem(TOKEN_KEY);
-  localStorage.removeItem(EMAIL_KEY);
-  document.getElementById('set-token').value = '';
-  document.getElementById('set-email').value = '';
+function loadSettings() {
+  const tok = localStorage.getItem(TOKEN_KEY) || '';
+  const em  = localStorage.getItem(EMAIL_KEY) || '';
+  document.getElementById('set-token').value = tok;
+  document.getElementById('set-email').value = em;
   document.getElementById('connection-result').className = 'connection-result';
-  document.getElementById('btn-connect').textContent = 'Save & Test Connection';
-  document.getElementById('btn-connect').disabled = false;
+  document.getElementById('connection-result').textContent = '';
+  renderEmployeeSettings();
 }
 
-function toggleTokenVis() {
-  const inp = document.getElementById('set-token');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
+function goBackFromSettings() {
+  if (currentEmployee) {
+    showScreen('screen-select');
+  } else {
+    showScreen('screen-employee');
+  }
+}
+
+// ═══════════════════════════════════════
+// EMPLOYEE MANAGEMENT (SETTINGS)
+// ═══════════════════════════════════════
+function renderEmployeeSettings() {
+  const list = document.getElementById('emp-list-settings');
+  list.innerHTML = '';
+  employees.forEach((emp, i) => {
+    const row = document.createElement('div');
+    row.className = 'emp-row';
+    const initials = emp.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+    row.innerHTML = `
+      <div class="emp-avatar-sm">${initials}</div>
+      <div class="emp-info">
+        <div class="emp-info-name">${emp.name}</div>
+        <div class="emp-info-role">${emp.role === 'owner' ? '⭐ Owner' : 'Crew'}</div>
+      </div>
+      <button class="emp-action-btn" onclick="openChangePin(${i})">Change PIN</button>
+      ${emp.role !== 'owner' ? `<button class="emp-action-btn danger" onclick="removeEmployee(${i})">Remove</button>` : ''}
+    `;
+    list.appendChild(row);
+  });
+}
+
+function openAddEmployee() {
+  document.getElementById('new-emp-name').value = '';
+  document.getElementById('new-emp-pin').value  = '';
+  document.getElementById('new-emp-role').value = 'crew';
+  openModal('modal-addemp');
+  setTimeout(() => document.getElementById('new-emp-name').focus(), 300);
+}
+
+function saveEmployee() {
+  const name = document.getElementById('new-emp-name').value.trim();
+  const pin  = document.getElementById('new-emp-pin').value.trim();
+  const role = document.getElementById('new-emp-role').value;
+  if (!name) { alert('Please enter a name.'); return; }
+  if (pin.length !== 4 || isNaN(pin)) { alert('PIN must be exactly 4 digits.'); return; }
+  employees.push({ name, pin, role });
+  saveEmployees();
+  renderEmployeeGrid();
+  renderEmployeeSettings();
+  closeModal('modal-addemp');
+}
+
+let changingPinIndex = null;
+function openChangePin(i) {
+  changingPinIndex = i;
+  document.getElementById('changepin-title').textContent = `Change PIN — ${employees[i].name}`;
+  document.getElementById('new-pin-input').value = '';
+  openModal('modal-changepin');
+  setTimeout(() => document.getElementById('new-pin-input').focus(), 300);
+}
+
+function saveNewPin() {
+  const pin = document.getElementById('new-pin-input').value.trim();
+  if (pin.length !== 4 || isNaN(pin)) { alert('PIN must be exactly 4 digits.'); return; }
+  employees[changingPinIndex].pin = pin;
+  saveEmployees();
+  closeModal('modal-changepin');
+  renderEmployeeSettings();
+  alert(`✓ PIN updated for ${employees[changingPinIndex].name}`);
+}
+
+function removeEmployee(i) {
+  const emp = employees[i];
+  if (!confirm(`Remove ${emp.name}? Their past log entries are kept.`)) return;
+  employees.splice(i, 1);
+  saveEmployees();
+  renderEmployeeGrid();
+  renderEmployeeSettings();
+}
+
+function saveEmployees() {
+  localStorage.setItem(EMPLOYEES_KEY, JSON.stringify(employees));
 }
 
 // ═══════════════════════════════════════
@@ -688,17 +1120,13 @@ function toggleTokenVis() {
 function renderJobs() {
   const list = document.getElementById('job-list');
   list.innerHTML = '';
-
   if (jobs.length === 0) {
     list.innerHTML = '<div style="color:var(--muted);font-size:15px;padding:8px 0;">No jobs yet. Connect Printavo or add one manually.</div>';
   }
-
   jobs.forEach((job, i) => {
     const card = document.createElement('div');
     card.className = 'job-card' + (selectedJob === i ? ' selected' : '');
-    const badge = job.source === 'printavo'
-      ? `<div class="job-badge">Printavo</div>`
-      : '';
+    const badge = job.source === 'printavo' ? `<div class="job-badge">Printavo</div>` : '';
     const metaLine = job.meta || (job.type + (job.qty ? ` · ${job.qty} pcs` : ''));
     card.innerHTML = `
       <div class="job-name">${job.name}</div>
@@ -708,7 +1136,6 @@ function renderJobs() {
     card.onclick = () => selectJob(i);
     list.appendChild(card);
   });
-
   document.getElementById('btn-start').disabled = selectedJob === null;
 }
 
@@ -718,36 +1145,32 @@ function selectJob(i) {
 }
 
 // ═══════════════════════════════════════
-// ADD JOB MODAL
+// STAGE SELECTION
 // ═══════════════════════════════════════
-function openAddJob() {
-  document.getElementById('input-name').value = '';
-  document.getElementById('input-qty').value  = '';
-  document.getElementById('modal-overlay').classList.add('open');
-  setTimeout(() => document.getElementById('input-name').focus(), 300);
+function goToStageSelect() {
+  if (selectedJob === null) return;
+  const job = jobs[selectedJob];
+  document.getElementById('stage-job-label').textContent = job.name;
+  // Reset stage selection
+  selectedStage = null;
+  document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('selected'));
+  showScreen('screen-stage');
 }
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-}
-function closeModalOutside(e) {
-  if (e.target === document.getElementById('modal-overlay')) closeModal();
-}
-function saveJob() {
-  const name = document.getElementById('input-name').value.trim();
-  if (!name) { alert('Please enter a job name.'); return; }
-  const qty  = document.getElementById('input-qty').value.trim();
-  const type = document.getElementById('input-type').value;
-  jobs.push({ name, qty, type, source: 'manual' });
-  localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
-  closeModal();
-  renderJobs();
+
+function selectStage(stage) {
+  selectedStage = stage;
+  document.querySelectorAll('.stage-btn').forEach(b => {
+    b.classList.toggle('selected', b.dataset.stage === stage);
+  });
+  // Short delay so user sees selection highlight, then start
+  setTimeout(startTracking, 220);
 }
 
 // ═══════════════════════════════════════
 // START TRACKING
 // ═══════════════════════════════════════
 function startTracking() {
-  if (selectedJob === null) return;
+  if (selectedJob === null || !selectedStage) return;
   const job = jobs[selectedJob];
 
   elapsedMs    = 0;
@@ -758,6 +1181,8 @@ function startTracking() {
   document.getElementById('track-name').textContent = job.name;
   const metaLine = job.meta || (job.type + (job.qty ? ` · ${job.qty} pcs` : ''));
   document.getElementById('track-meta').textContent = metaLine;
+  document.getElementById('track-who-name').textContent  = currentEmployee.name;
+  document.getElementById('track-who-stage').textContent = selectedStage;
   setBadge('running');
   document.getElementById('btn-pause').textContent = '⏸ PAUSE';
 
@@ -784,7 +1209,7 @@ function msToHMS(ms) {
 function msToHM(ms) {
   const m = Math.floor(ms / 60000);
   const h = Math.floor(m / 60);
-  return h > 0 ? `${h}h ${m%60}m` : `${m}m`;
+  return h > 0 ? `${h}h ${m % 60}m` : `${m}m`;
 }
 
 // ═══════════════════════════════════════
@@ -812,60 +1237,156 @@ function setBadge(state) {
 }
 
 // ═══════════════════════════════════════
-// SWITCH JOB / BANK SESSION
+// SWITCH JOB
 // ═══════════════════════════════════════
 function switchJob() {
-  bankCurrentSession();
+  // Bank current session with no notes and go back to job select
+  bankCurrentSession(null);
   clearInterval(timerInterval);
+  timerInterval = null;
+  elapsedMs = 0; isPaused = false; pauseCount = 0; sessionStart = null;
+  selectedJob = null; selectedStage = null;
   showScreen('screen-select');
   renderJobs();
 }
 
-function bankCurrentSession() {
-  if (selectedJob === null) return;
-  const job = jobs[selectedJob];
-  let finalMs = elapsedMs;
-  if (!isPaused && sessionStart) finalMs += Date.now() - sessionStart;
-  if (finalMs < 1000) return;
-
-  const existing = dayLog.find(e => e.jobIndex === selectedJob);
-  if (existing) {
-    existing.ms += finalMs;
-    existing.pauses += pauseCount;
-  } else {
-    dayLog.push({ jobIndex: selectedJob, name: job.name, ms: finalMs, pauses: pauseCount });
+// ═══════════════════════════════════════
+// END SESSION (goes to notes screen)
+// ═══════════════════════════════════════
+function endSession() {
+  if (!isPaused && sessionStart) {
+    elapsedMs += Date.now() - sessionStart;
+    sessionStart = null;
   }
+  clearInterval(timerInterval);
+  timerInterval = null;
+
+  // Store pending session data
+  const job = jobs[selectedJob];
+  pendingSession = {
+    employee:    currentEmployee.name,
+    jobIndex:    selectedJob,
+    name:        job.name,
+    jobId:       job.printavoId || null,
+    jobNumber:   job.name.split('·')[0].trim(),
+    stage:       selectedStage,
+    ms:          elapsedMs,
+    pauses:      pauseCount,
+    startedAt:   new Date(Date.now() - elapsedMs).toISOString(),
+    endedAt:     new Date().toISOString(),
+    date:        new Date().toLocaleDateString('en-CA'),  // YYYY-MM-DD
+  };
+
+  // Show notes screen
+  document.getElementById('notes-job-label').textContent = `${job.name} — ${selectedStage}`;
+  document.getElementById('notes-time').textContent = msToHM(elapsedMs);
+  document.getElementById('input-notes').value = '';
+  showScreen('screen-notes');
+}
+
+// ═══════════════════════════════════════
+// SAVE SESSION (from notes screen)
+// ═══════════════════════════════════════
+function saveSession() {
+  if (!pendingSession) return;
+  const notes = document.getElementById('input-notes').value.trim();
+  pendingSession.notes = notes;
+  dayLog.push(pendingSession);
+  localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
+  pendingSession = null;
+  elapsedMs = 0; pauseCount = 0; isPaused = false; selectedJob = null; selectedStage = null;
+  showScreen('screen-select');
+  renderJobs();
+}
+
+// Bank without notes (for switch/force end scenarios)
+function bankCurrentSession(notes) {
+  if (selectedJob === null) return;
+  if (!isPaused && sessionStart) {
+    elapsedMs += Date.now() - sessionStart;
+    sessionStart = null;
+  }
+  if (elapsedMs < 1000) return;
+  const job = jobs[selectedJob];
+  dayLog.push({
+    employee:   currentEmployee ? currentEmployee.name : 'Unknown',
+    jobIndex:   selectedJob,
+    name:       job.name,
+    jobId:      job.printavoId || null,
+    jobNumber:  job.name.split('·')[0].trim(),
+    stage:      selectedStage || 'Other',
+    ms:         elapsedMs,
+    pauses:     pauseCount,
+    startedAt:  new Date(Date.now() - elapsedMs).toISOString(),
+    endedAt:    new Date().toISOString(),
+    date:       new Date().toLocaleDateString('en-CA'),
+    notes:      notes || '',
+  });
   localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
 }
 
 // ═══════════════════════════════════════
 // END DAY
 // ═══════════════════════════════════════
+function confirmEndDay() {
+  openModal('modal-endday');
+}
+
 function endDay() {
-  bankCurrentSession();
-  clearInterval(timerInterval);
+  closeModal('modal-endday');
+  // If timer is running, end the session first (with no notes for simplicity)
+  if (timerInterval) {
+    bankCurrentSession(null);
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
 
   const totalMs     = dayLog.reduce((s, e) => s + e.ms, 0);
   const totalPauses = dayLog.reduce((s, e) => s + e.pauses, 0);
 
-  document.getElementById('sum-jobs').textContent   = dayLog.length;
-  document.getElementById('sum-total').textContent  = msToHM(totalMs);
-  document.getElementById('sum-pauses').textContent = totalPauses;
-  document.getElementById('endday-date').textContent =
+  document.getElementById('sum-sessions').textContent = dayLog.length;
+  document.getElementById('sum-total').textContent    = msToHM(totalMs);
+  document.getElementById('sum-pauses').textContent   = totalPauses;
+  document.getElementById('endday-date').textContent  =
     new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 
+  // My Hours section — only show if crew (not owner) or show for current employee
+  const myEntries = dayLog.filter(e => e.employee === (currentEmployee ? currentEmployee.name : ''));
+  const mySection = document.getElementById('my-hours-section');
+  const myContent = document.getElementById('my-hours-content');
+
+  if (myEntries.length > 0) {
+    const myMs = myEntries.reduce((s, e) => s + e.ms, 0);
+    mySection.style.display = 'block';
+    myContent.innerHTML = `
+      <div class="stat-row" style="border-bottom:1px solid #bfdbfe;">
+        <span style="color:#1d4ed8;">My Total Today</span>
+        <span style="font-weight:800;color:#1d4ed8;">${msToHM(myMs)}</span>
+      </div>
+      ${myEntries.map(e => `
+        <div class="stat-row" style="border-bottom:1px solid #bfdbfe;font-size:14px;">
+          <span style="color:#3b82f6;">${e.name} · ${e.stage}</span>
+          <span style="font-weight:700;color:#1d4ed8;">${msToHM(e.ms)}</span>
+        </div>
+      `).join('')}
+    `;
+  } else {
+    mySection.style.display = 'none';
+  }
+
+  // Full session breakdown
   const logEl = document.getElementById('job-log');
   logEl.innerHTML = '';
   if (dayLog.length === 0) {
-    logEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">No jobs logged today.</div>';
+    logEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">No sessions logged today.</div>';
   } else {
     dayLog.forEach(entry => {
       const div = document.createElement('div');
       div.className = 'log-entry';
       div.innerHTML = `
-        <div>
+        <div style="flex:1;">
           <div class="log-name">${entry.name}</div>
-          <div class="log-pauses">${entry.pauses} pause${entry.pauses !== 1 ? 's' : ''}</div>
+          <div class="log-sub">${entry.employee} · ${entry.stage}${entry.pauses > 0 ? ` · ${entry.pauses} pause${entry.pauses !== 1 ? 's' : ''}` : ''}${entry.notes ? ` · 📝 ${entry.notes}` : ''}</div>
         </div>
         <div class="log-time">${msToHM(entry.ms)}</div>
       `;
@@ -882,17 +1403,187 @@ function endDay() {
 function newDay() {
   dayLog = [];
   localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
-  selectedJob = null; elapsedMs = 0; pauseCount = 0; isPaused = false; sessionStart = null;
-  showScreen('screen-select');
-  renderJobs();
-  loadPrintavoJobs(); // Refresh jobs at start of new day
+  currentEmployee = null;
+  selectedJob = null; selectedStage = null;
+  elapsedMs = 0; pauseCount = 0; isPaused = false; sessionStart = null;
+  updateHeaderEmployee();
+  renderEmployeeGrid();
+  showScreen('screen-employee');
+  loadPrintavoJobs();
 }
 
 // ═══════════════════════════════════════
-// INIT
+// ADD JOB MODAL
 // ═══════════════════════════════════════
-renderJobs();
-loadPrintavoJobs(); // Auto-load on startup if credentials exist
+function openAddJob() {
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-qty').value  = '';
+  openModal('modal-addjob');
+  setTimeout(() => document.getElementById('input-name').focus(), 300);
+}
+function saveJob() {
+  const name = document.getElementById('input-name').value.trim();
+  if (!name) { alert('Please enter a job name.'); return; }
+  const qty  = document.getElementById('input-qty').value.trim();
+  const type = document.getElementById('input-type').value;
+  jobs.push({ name, qty, type, source: 'manual' });
+  localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+  closeModal('modal-addjob');
+  renderJobs();
+}
+
+// ═══════════════════════════════════════
+// MODAL HELPERS
+// ═══════════════════════════════════════
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+function closeModalOutside(e, id) {
+  if (e.target === document.getElementById(id)) closeModal(id);
+}
+
+// ═══════════════════════════════════════
+// PRINTAVO — GRAPHQL API
+// ═══════════════════════════════════════
+const PROXY_URL = 'https://printavo-proxy.kendrikharden.workers.dev';
+
+async function printavoQuery(query, variables = {}) {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const email = localStorage.getItem(EMAIL_KEY);
+  if (!token || !email) throw new Error('No credentials saved. Open Settings to connect Printavo.');
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'email': email, 'token': token },
+    body: JSON.stringify({ query, variables }),
+  });
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const json = await res.json();
+  if (json.errors) throw new Error(json.errors[0]?.message || 'GraphQL error');
+  return json.data;
+}
+
+async function loadPrintavoJobs() {
+  const syncBar = document.getElementById('sync-bar');
+  const syncMsg = document.getElementById('sync-msg');
+  const token   = localStorage.getItem(TOKEN_KEY);
+  const email   = localStorage.getItem(EMAIL_KEY);
+
+  if (!token || !email) {
+    syncBar.className = 'sync-bar offline';
+    syncMsg.textContent = 'Not connected — tap ⚙️ to set up Printavo';
+    return;
+  }
+
+  syncBar.className = 'sync-bar loading';
+  syncMsg.textContent = 'Loading jobs from Printavo…';
+
+  try {
+    const query = `
+      query {
+        quotes(first: 25, sortOn: VISUAL_ID, sortDescending: true) {
+          nodes {
+            id visualId nickname totalQuantity
+            contact { fullName }
+            status { name }
+            customerDueAt
+          }
+        }
+      }
+    `;
+    const data = await printavoQuery(query);
+    const orders = data?.quotes?.nodes || [];
+
+    const activeOrders = orders.filter(o => {
+      const status = (o.status?.name || '').toLowerCase();
+      return status === 'in production' || status === 'ready for production';
+    });
+
+    const printavoJobs = activeOrders.map(o => {
+      const customerName = o.contact?.fullName || 'Unknown Customer';
+      const orderId = o.visualId || o.id;
+      const nickname = o.nickname ? ` — ${o.nickname}` : '';
+      const due = o.customerDueAt ? ` · Due ${new Date(o.customerDueAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '';
+      return {
+        name: `#${orderId}${nickname} · ${customerName}`,
+        qty: o.totalQuantity || '',
+        type: 'Printavo Order',
+        meta: `${o.status?.name || 'Active'}${due}`,
+        source: 'printavo',
+        printavoId: o.id,
+      };
+    });
+
+    const manualJobs = jobs.filter(j => j.source !== 'printavo');
+    jobs = [...printavoJobs, ...manualJobs];
+    localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+    selectedJob = null;
+    renderJobs();
+
+    syncBar.className = printavoJobs.length > 0 ? 'sync-bar success' : 'sync-bar offline';
+    syncMsg.textContent = printavoJobs.length > 0
+      ? `✓ ${printavoJobs.length} job${printavoJobs.length !== 1 ? 's' : ''} in production`
+      : 'No jobs marked In Production or Ready for Production';
+  } catch (err) {
+    syncBar.className = 'sync-bar error';
+    syncMsg.textContent = `Connection failed: ${err.message}`;
+  }
+}
+
+// ═══════════════════════════════════════
+// SETTINGS — PRINTAVO
+// ═══════════════════════════════════════
+async function saveAndTestPrintavo() {
+  const token = document.getElementById('set-token').value.trim();
+  const email = document.getElementById('set-email').value.trim();
+  const resultEl = document.getElementById('connection-result');
+  const btn = document.getElementById('btn-connect');
+  if (!token || !email) {
+    resultEl.className = 'connection-result error';
+    resultEl.textContent = 'Please enter both your email and API token.';
+    return;
+  }
+  btn.textContent = 'Testing…';
+  btn.disabled = true;
+  resultEl.className = 'connection-result';
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(EMAIL_KEY, email);
+  try {
+    const data = await printavoQuery(`{ account { companyName } }`);
+    const shopName = data?.account?.companyName || 'your shop';
+    resultEl.className = 'connection-result success';
+    resultEl.textContent = `✓ Connected to ${shopName}!`;
+    btn.textContent = '✓ Connected';
+  } catch (err) {
+    resultEl.className = 'connection-result error';
+    resultEl.textContent = `✗ ${err.message}`;
+    btn.textContent = 'Save & Test Connection';
+    btn.disabled = false;
+  }
+}
+
+function clearPrintavoSettings() {
+  if (!confirm('Remove saved Printavo credentials from this device?')) return;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(EMAIL_KEY);
+  document.getElementById('set-token').value = '';
+  document.getElementById('set-email').value = '';
+  document.getElementById('connection-result').className = 'connection-result';
+  document.getElementById('btn-connect').textContent = 'Save & Test Connection';
+  document.getElementById('btn-connect').disabled = false;
+}
+
+function toggleTokenVis() {
+  const inp = document.getElementById('set-token');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+init();
 </script>
 </body>
 </html>
