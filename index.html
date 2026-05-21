@@ -556,10 +556,10 @@ async function loadPrintavoJobs() {
   syncMsg.textContent = 'Loading jobs from Printavo…';
 
   try {
-    // Fetch orders with status not closed/completed — active production orders
+    // Fetch quotes — this is where active/in-production jobs live in Printavo
     const query = `
       query {
-        orders(first: 50, sortOn: VISUAL_ID, descending: true) {
+        quotes(first: 50, sortOn: VISUAL_ID, descending: true) {
           nodes {
             id
             visualId
@@ -575,19 +575,25 @@ async function loadPrintavoJobs() {
             status {
               name
             }
+            customerDueAt
           }
         }
       }
     `;
 
     const data = await printavoQuery(query);
-    const orders = data?.orders?.nodes || [];
+    const orders = data?.quotes?.nodes || [];
 
-    // Filter to active/in-production orders (exclude closed/completed/cancelled)
-    const skipStatuses = ['closed', 'completed', 'cancelled', 'delivered', 'picked up'];
+    // Only show jobs that are active on the production floor
+    const activeStatuses = [
+      'in production',
+      'ready for production',
+      'order acknowledgement approved',
+      'order acknowledgement sent',
+    ];
     const activeOrders = orders.filter(o => {
       const status = (o.status?.name || '').toLowerCase();
-      return !skipStatuses.some(s => status.includes(s));
+      return activeStatuses.some(s => status.includes(s));
     });
 
     if (activeOrders.length === 0) {
@@ -602,11 +608,12 @@ async function loadPrintavoJobs() {
       const customerName = o.contact?.fullName || 'Unknown Customer';
       const orderId = o.visualId || o.id;
       const nickname = o.nickname ? ` — ${o.nickname}` : '';
+      const due = o.customerDueAt ? ` · Due ${new Date(o.customerDueAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '';
       return {
         name: `#${orderId}${nickname} · ${customerName}`,
         qty: qty || '',
         type: 'Printavo Order',
-        meta: `${o.status?.name || 'Active'}`,
+        meta: `${o.status?.name || 'Active'}${due}`,
         source: 'printavo',
         printavoId: o.id,
       };
@@ -621,7 +628,7 @@ async function loadPrintavoJobs() {
     renderJobs();
 
     syncBar.className = 'sync-bar success';
-    syncMsg.textContent = `✓ ${printavoJobs.length} active order${printavoJobs.length !== 1 ? 's' : ''} loaded`;
+    syncMsg.textContent = `✓ ${printavoJobs.length} job${printavoJobs.length !== 1 ? 's' : ''} ready for production`;
   } catch (err) {
     syncBar.className = 'sync-bar error';
     syncMsg.textContent = `Connection failed: ${err.message}`;
