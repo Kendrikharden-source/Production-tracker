@@ -559,22 +559,14 @@ async function loadPrintavoJobs() {
     // Fetch quotes — this is where active/in-production jobs live in Printavo
     const query = `
       query {
-        quotes(first: 50, sortOn: VISUAL_ID, sortDescending: true) {
+        quotes(first: 25, sortOn: VISUAL_ID, sortDescending: true) {
           nodes {
             id
             visualId
             nickname
+            totalQuantity
             contact {
               fullName
-            }
-            lineItemGroups {
-              nodes {
-                lineItems {
-                  nodes {
-                    items
-                  }
-                }
-              }
             }
             status {
               name
@@ -588,16 +580,10 @@ async function loadPrintavoJobs() {
     const data = await printavoQuery(query);
     const orders = data?.quotes?.nodes || [];
 
-    // Only show jobs that are active on the production floor
-    const activeStatuses = [
-      'in production',
-      'ready for production',
-      'order acknowledgement approved',
-      'order acknowledgement sent',
-    ];
+    // Only show screen print jobs marked as In Production or Ready for Production
     const activeOrders = orders.filter(o => {
       const status = (o.status?.name || '').toLowerCase();
-      return activeStatuses.some(s => status.includes(s));
+      return status === 'in production' || status === 'ready for production';
     });
 
     if (activeOrders.length === 0) {
@@ -608,9 +594,7 @@ async function loadPrintavoJobs() {
 
     // Convert to our job format, keeping manual jobs too
     const printavoJobs = activeOrders.map(o => {
-      const qty = (o.lineItemGroups?.nodes || []).reduce((sum, g) => {
-        return sum + (g.lineItems?.nodes || []).reduce((s, li) => s + (li.items || 0), 0);
-      }, 0);
+      const qty = o.totalQuantity || '';
       const customerName = o.contact?.fullName || 'Unknown Customer';
       const orderId = o.visualId || o.id;
       const nickname = o.nickname ? ` — ${o.nickname}` : '';
@@ -633,8 +617,10 @@ async function loadPrintavoJobs() {
     selectedJob = null;
     renderJobs();
 
-    syncBar.className = 'sync-bar success';
-    syncMsg.textContent = `✓ ${printavoJobs.length} job${printavoJobs.length !== 1 ? 's' : ''} ready for production`;
+    syncBar.className = printavoJobs.length > 0 ? 'sync-bar success' : 'sync-bar offline';
+    syncMsg.textContent = printavoJobs.length > 0
+      ? `✓ ${printavoJobs.length} job${printavoJobs.length !== 1 ? 's' : ''} in production`
+      : 'No jobs marked In Production or Ready for Production';
   } catch (err) {
     syncBar.className = 'sync-bar error';
     syncMsg.textContent = `Connection failed: ${err.message}`;
