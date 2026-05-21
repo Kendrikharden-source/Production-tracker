@@ -559,7 +559,7 @@ async function loadPrintavoJobs() {
     // Fetch orders with status not closed/completed — active production orders
     const query = `
       query {
-        orders(first: 50, sortOn: CREATED_AT, descending: true) {
+        orders(first: 50) {
           nodes {
             id
             visualId
