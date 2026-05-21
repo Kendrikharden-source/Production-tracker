@@ -559,7 +559,7 @@ async function loadPrintavoJobs() {
     // Fetch orders with status not closed/completed — active production orders
     const query = `
       query {
-        orders(first: 50) {
+        orders(first: 50, sortOn: VISUAL_ID, descending: true) {
           nodes {
             id
             visualId
@@ -575,7 +575,6 @@ async function loadPrintavoJobs() {
             status {
               name
             }
-            productionDue
           }
         }
       }
@@ -603,12 +602,11 @@ async function loadPrintavoJobs() {
       const customerName = o.contact?.fullName || 'Unknown Customer';
       const orderId = o.visualId || o.id;
       const nickname = o.nickname ? ` — ${o.nickname}` : '';
-      const due = o.productionDue ? ` · Due ${new Date(o.productionDue).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '';
       return {
         name: `#${orderId}${nickname} · ${customerName}`,
         qty: qty || '',
         type: 'Printavo Order',
-        meta: `${o.status?.name || 'Active'}${due}`,
+        meta: `${o.status?.name || 'Active'}`,
         source: 'printavo',
         printavoId: o.id,
       };
