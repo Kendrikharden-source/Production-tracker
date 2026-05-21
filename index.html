@@ -476,6 +476,7 @@
   <h1>🖨️ Production</h1>
   <div class="header-right">
     <div id="header-employee"></div>
+    <div id="sync-badge" style="display:none;font-size:11px;font-weight:700;background:rgba(220,38,38,0.85);color:#fff;border-radius:8px;padding:3px 8px;"></div>
     <div id="live-clock">--:--</div>
     <button id="btn-settings" onclick="openSettings()" title="Settings">⚙️</button>
   </div>
@@ -652,6 +653,21 @@
     </button>
   </div>
 
+  <!-- Google Sheets -->
+  <div class="settings-card">
+    <h3>📊 Google Sheets</h3>
+    <p>Paste your Apps Script Web App URL here. Every session will be saved to your sheet automatically.</p>
+    <div class="field">
+      <label>Apps Script Web App URL</label>
+      <input type="url" id="set-sheets-url" placeholder="https://script.google.com/macros/s/..." autocomplete="off" style="font-size:13px;" />
+    </div>
+    <div id="sheets-result" class="connection-result"></div>
+    <button class="btn btn-green" onclick="saveAndTestSheets()" id="btn-sheets" style="font-size:17px; padding:16px;">
+      Save &amp; Test Sheets
+    </button>
+    <div id="sheets-queue-info" style="font-size:13px;color:var(--muted);display:none;"></div>
+  </div>
+
   <!-- Printavo -->
   <div class="settings-card">
     <h3>Printavo Connection</h3>
@@ -800,6 +816,8 @@ const LOG_KEY       = 'pt_log_v2';       // upgraded key — includes employee +
 const TOKEN_KEY     = 'pt_printavo_token';
 const EMAIL_KEY     = 'pt_printavo_email';
 const EMPLOYEES_KEY = 'pt_employees_v1';
+const SHEETS_URL_KEY = 'pt_sheets_url';
+const RETRY_QUEUE_KEY = 'pt_retry_queue';
 
 // ═══════════════════════════════════════
 // DEFAULT EMPLOYEES
@@ -838,6 +856,86 @@ let pendingAfterPin  = null;      // function to call after owner verification
 let pendingSession   = null;
 
 // ═══════════════════════════════════════
+// GOOGLE SHEETS — SEND DATA
+// ═══════════════════════════════════════
+async function sendToSheets(entry) {
+  const url = localStorage.getItem(SHEETS_URL_KEY);
+  if (!url) return; // Not configured — skip silently
+
+  // Add unique entry ID
+  entry.entry_id = 'entry_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // text/plain avoids CORS preflight
+      body: JSON.stringify(entry),
+      mode: 'no-cors', // Apps Script doesn't need CORS for POST
+    });
+    // no-cors means we can't read response — assume success, retry queue handles failures
+    // Remove from retry queue if it was there
+    removeFromRetryQueue(entry.entry_id);
+  } catch (err) {
+    // Offline or failed — save to retry queue
+    addToRetryQueue(entry);
+    console.warn('Sheets send failed, queued for retry:', err.message);
+  }
+}
+
+function addToRetryQueue(entry) {
+  const queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+  // Don't add duplicates
+  if (!queue.find(e => e.entry_id === entry.entry_id)) {
+    queue.push(entry);
+    localStorage.setItem(RETRY_QUEUE_KEY, JSON.stringify(queue));
+  }
+  updateSyncBadge();
+}
+
+function removeFromRetryQueue(entryId) {
+  const queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+  const filtered = queue.filter(e => e.entry_id !== entryId);
+  localStorage.setItem(RETRY_QUEUE_KEY, JSON.stringify(filtered));
+  updateSyncBadge();
+}
+
+async function flushRetryQueue() {
+  const url = localStorage.getItem(SHEETS_URL_KEY);
+  if (!url) return;
+  const queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+  if (queue.length === 0) return;
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(queue),
+      mode: 'no-cors',
+    });
+    // Success — clear the queue
+    localStorage.setItem(RETRY_QUEUE_KEY, JSON.stringify([]));
+    updateSyncBadge();
+  } catch(err) {
+    console.warn('Retry flush failed — will try again later');
+  }
+}
+
+function updateSyncBadge() {
+  const queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+  const badge = document.getElementById('sync-badge');
+  if (!badge) return;
+  if (queue.length > 0) {
+    badge.textContent = `⚠️ ${queue.length} unsent`;
+    badge.style.display = 'block';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// Retry any queued entries every 2 minutes
+setInterval(flushRetryQueue, 120000);
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 function init() {
@@ -845,6 +943,8 @@ function init() {
   renderEmployeeGrid();
   renderJobs();
   loadPrintavoJobs();
+  updateSyncBadge();
+  flushRetryQueue(); // Try to send anything that failed last session
 }
 
 // ═══════════════════════════════════════
@@ -1023,11 +1123,79 @@ function openSettings() {
 function loadSettings() {
   const tok = localStorage.getItem(TOKEN_KEY) || '';
   const em  = localStorage.getItem(EMAIL_KEY) || '';
+  const sheetsUrl = localStorage.getItem(SHEETS_URL_KEY) || '';
   document.getElementById('set-token').value = tok;
   document.getElementById('set-email').value = em;
+  document.getElementById('set-sheets-url').value = sheetsUrl;
   document.getElementById('connection-result').className = 'connection-result';
   document.getElementById('connection-result').textContent = '';
+  document.getElementById('sheets-result').className = 'connection-result';
+  document.getElementById('sheets-result').textContent = '';
+
+  // Show retry queue info
+  const queue = JSON.parse(localStorage.getItem(RETRY_QUEUE_KEY) || '[]');
+  const queueInfo = document.getElementById('sheets-queue-info');
+  if (queue.length > 0) {
+    queueInfo.style.display = 'block';
+    queueInfo.textContent = `⚠️ ${queue.length} session${queue.length !== 1 ? 's' : ''} waiting to sync (will send automatically when connected)`;
+  } else {
+    queueInfo.style.display = 'none';
+  }
+
   renderEmployeeSettings();
+}
+
+async function saveAndTestSheets() {
+  const url = document.getElementById('set-sheets-url').value.trim();
+  const resultEl = document.getElementById('sheets-result');
+  const btn = document.getElementById('btn-sheets');
+
+  if (!url || !url.startsWith('https://script.google.com')) {
+    resultEl.className = 'connection-result error';
+    resultEl.textContent = 'Please paste a valid Apps Script URL.';
+    return;
+  }
+
+  localStorage.setItem(SHEETS_URL_KEY, url);
+  btn.textContent = 'Testing…';
+  btn.disabled = true;
+  resultEl.className = 'connection-result';
+
+  // Send a test entry
+  const testEntry = {
+    entry_id:  'test_' + Date.now(),
+    date:       new Date().toLocaleDateString('en-CA'),
+    employee:  'Test',
+    jobNumber: 'TEST',
+    name:      'Connection Test',
+    stage:     'Test',
+    startedAt: new Date().toISOString(),
+    endedAt:   new Date().toISOString(),
+    ms:        0,
+    pauses:    0,
+    notes:     'Delete this row — connection test only',
+  };
+
+  try {
+    await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(testEntry),
+      mode: 'no-cors',
+    });
+    // no-cors = can't read response, but if no error was thrown, request went through
+    resultEl.className = 'connection-result success';
+    resultEl.textContent = '✓ Connected! Check your Google Sheet — a test row should appear within seconds.';
+    btn.textContent = '✓ Connected';
+
+    // Also flush any queued entries now that we have a URL
+    flushRetryQueue();
+  } catch(err) {
+    resultEl.className = 'connection-result error';
+    resultEl.textContent = `✗ Could not reach the URL. Check your internet connection.`;
+    btn.textContent = 'Save & Test Sheets';
+    btn.disabled = false;
+  }
 }
 
 function goBackFromSettings() {
@@ -1293,6 +1461,10 @@ function saveSession() {
   pendingSession.notes = notes;
   dayLog.push(pendingSession);
   localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
+
+  // Send to Google Sheets (async — non-blocking)
+  sendToSheets(Object.assign({}, pendingSession));
+
   pendingSession = null;
   elapsedMs = 0; pauseCount = 0; isPaused = false; selectedJob = null; selectedStage = null;
   showScreen('screen-select');
