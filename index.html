@@ -528,8 +528,8 @@ async function printavoQuery(query, variables = {}) {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-printavo-email': email,
-      'x-printavo-token': token,
+      'email': email,
+      'token': token,
     },
     body: JSON.stringify({ query, variables }),
   });
