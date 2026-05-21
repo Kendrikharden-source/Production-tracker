@@ -559,7 +559,7 @@ async function loadPrintavoJobs() {
     // Fetch quotes — this is where active/in-production jobs live in Printavo
     const query = `
       query {
-        quotes(first: 50, sortOn: VISUAL_ID, descending: true) {
+        quotes(first: 50, sortOn: VISUAL_ID, sortDescending: true) {
           nodes {
             id
             visualId
@@ -661,8 +661,8 @@ async function saveAndTestPrintavo() {
   localStorage.setItem(EMAIL_KEY, email);
 
   try {
-    const data = await printavoQuery(`{ account { email } }`);
-    const shopName = data?.account?.email || 'your shop';
+    const data = await printavoQuery(`{ account { subdomain } }`);
+    const shopName = data?.account?.subdomain || 'your shop';
     resultEl.className = 'connection-result success';
     resultEl.textContent = `✓ Connected to ${shopName}! Jobs will load automatically.`;
     btn.textContent = '✓ Connected';
