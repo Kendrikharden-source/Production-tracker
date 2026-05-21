@@ -569,7 +569,11 @@ async function loadPrintavoJobs() {
             }
             lineItemGroups {
               nodes {
-                quantity
+                lineItems {
+                  nodes {
+                    items
+                  }
+                }
               }
             }
             status {
@@ -604,7 +608,9 @@ async function loadPrintavoJobs() {
 
     // Convert to our job format, keeping manual jobs too
     const printavoJobs = activeOrders.map(o => {
-      const qty = (o.lineItemGroups?.nodes || []).reduce((sum, g) => sum + (g.quantity || 0), 0);
+      const qty = (o.lineItemGroups?.nodes || []).reduce((sum, g) => {
+        return sum + (g.lineItems?.nodes || []).reduce((s, li) => s + (li.items || 0), 0);
+      }, 0);
       const customerName = o.contact?.fullName || 'Unknown Customer';
       const orderId = o.visualId || o.id;
       const nickname = o.nickname ? ` — ${o.nickname}` : '';
@@ -661,8 +667,8 @@ async function saveAndTestPrintavo() {
   localStorage.setItem(EMAIL_KEY, email);
 
   try {
-    const data = await printavoQuery(`{ account { subdomain } }`);
-    const shopName = data?.account?.subdomain || 'your shop';
+    const data = await printavoQuery(`{ account { companyName } }`);
+    const shopName = data?.account?.companyName || 'your shop';
     resultEl.className = 'connection-result success';
     resultEl.textContent = `✓ Connected to ${shopName}! Jobs will load automatically.`;
     btn.textContent = '✓ Connected';
