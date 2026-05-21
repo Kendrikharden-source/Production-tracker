@@ -516,19 +516,20 @@ function goBackFromSettings() {
 // ═══════════════════════════════════════
 // PRINTAVO — GRAPHQL API
 // ═══════════════════════════════════════
-const PRINTAVO_URL = 'https://www.printavo.com/api/v2';
+// Cloudflare Worker proxy — forwards requests to Printavo and handles CORS
+const PROXY_URL = 'https://printavo-proxy.kendrikharden.workers.dev';
 
 async function printavoQuery(query, variables = {}) {
   const token = localStorage.getItem(TOKEN_KEY);
   const email = localStorage.getItem(EMAIL_KEY);
   if (!token || !email) throw new Error('No credentials saved. Open Settings to connect Printavo.');
 
-  const res = await fetch(PRINTAVO_URL, {
+  const res = await fetch(PROXY_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'email': email,
-      'token': token,
+      'x-printavo-email': email,
+      'x-printavo-token': token,
     },
     body: JSON.stringify({ query, variables }),
   });
