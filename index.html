@@ -656,8 +656,8 @@ async function saveAndTestPrintavo() {
   localStorage.setItem(EMAIL_KEY, email);
 
   try {
-    const data = await printavoQuery(`{ account { name } }`);
-    const shopName = data?.account?.name || 'your shop';
+    const data = await printavoQuery(`{ account { email } }`);
+    const shopName = data?.account?.email || 'your shop';
     resultEl.className = 'connection-result success';
     resultEl.textContent = `✓ Connected to ${shopName}! Jobs will load automatically.`;
     btn.textContent = '✓ Connected';
