@@ -41,18 +41,53 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 2px 8px rgba(245,158,11,0.25);
+      flex-shrink: 0;
     }
     header h1 { font-size: 20px; font-weight: 800; color: #fff; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+    .header-right { display: flex; align-items: center; gap: 14px; }
     #live-clock { font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.85); font-variant-numeric: tabular-nums; }
+    #btn-settings {
+      background: rgba(255,255,255,0.22);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 20px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #btn-settings:active { opacity: 0.7; }
 
     /* ── SCREENS ── */
-    .screen { display: none; flex: 1; flex-direction: column; }
+    .screen { display: none; flex: 1; flex-direction: column; overflow-y: auto; }
     .screen.active { display: flex; }
 
     /* ── JOB SELECT SCREEN ── */
     #screen-select { padding: 20px; gap: 14px; }
     #screen-select h2 { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
-    #screen-select p { color: var(--muted); font-size: 15px; margin-bottom: 4px; }
+    #screen-select .subtitle { color: var(--muted); font-size: 15px; margin-bottom: 4px; }
+
+    /* Printavo status banner */
+    .sync-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .sync-bar.loading  { background: var(--yellow-soft); color: var(--yellow-dark); }
+    .sync-bar.success  { background: var(--green-pale);  color: var(--green); }
+    .sync-bar.error    { background: var(--red-pale);    color: var(--red); }
+    .sync-bar.offline  { background: #f5f5f4;            color: var(--muted); }
+    .sync-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sync-bar.loading .sync-dot  { background: var(--yellow); animation: pulse 1s infinite; }
+    .sync-bar.success .sync-dot  { background: var(--green); }
+    .sync-bar.error   .sync-dot  { background: var(--red); }
+    .sync-bar.offline .sync-dot  { background: var(--muted-light); }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
     .job-list { display: flex; flex-direction: column; gap: 10px; }
 
@@ -60,7 +95,7 @@
       background: var(--card);
       border: 2px solid var(--border);
       border-radius: 14px;
-      padding: 18px 20px;
+      padding: 16px 20px;
       cursor: pointer;
       transition: border-color 0.15s, transform 0.1s, box-shadow 0.15s;
       -webkit-tap-highlight-color: transparent;
@@ -73,16 +108,28 @@
       background: var(--yellow-pale);
       box-shadow: 0 0 0 3px rgba(245,158,11,0.18);
     }
-    .job-card .job-name { font-size: 18px; font-weight: 700; color: var(--text); }
-    .job-card .job-meta { font-size: 14px; color: var(--muted); margin-top: 4px; }
+    .job-card .job-name  { font-size: 17px; font-weight: 700; color: var(--text); }
+    .job-card .job-meta  { font-size: 13px; color: var(--muted); margin-top: 4px; }
+    .job-card .job-badge {
+      display: inline-block;
+      margin-top: 6px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: var(--yellow-soft);
+      color: var(--yellow-dark);
+    }
 
     .add-job-btn {
       background: transparent;
       border: 2px dashed var(--border);
       border-radius: 14px;
-      padding: 16px;
+      padding: 15px;
       color: var(--muted-light);
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       text-align: center;
@@ -90,12 +137,8 @@
       transition: border-color 0.15s, color 0.15s;
     }
     .add-job-btn:active { opacity: 0.7; }
-    .add-job-btn:hover  { border-color: var(--yellow); color: var(--yellow-dark); }
 
-    .start-btn {
-      margin-top: auto;
-      padding-top: 16px;
-    }
+    .start-btn { margin-top: auto; padding-top: 16px; }
 
     /* ── TRACKING SCREEN ── */
     #screen-track {
@@ -104,14 +147,7 @@
       gap: 20px;
       background: var(--bg);
     }
-
-    .track-job-name {
-      font-size: 26px;
-      font-weight: 800;
-      text-align: center;
-      line-height: 1.2;
-      color: var(--text);
-    }
+    .track-job-name { font-size: 26px; font-weight: 800; text-align: center; line-height: 1.2; color: var(--text); }
     .track-job-meta { font-size: 15px; color: var(--muted); text-align: center; }
 
     .status-badge {
@@ -134,15 +170,9 @@
       line-height: 1;
       color: var(--text);
     }
-
     .elapsed-label { font-size: 13px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 1.5px; }
 
-    .track-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      width: 100%;
-    }
+    .track-actions { display: flex; flex-direction: column; gap: 12px; width: 100%; }
 
     /* ── BUTTONS ── */
     .btn {
@@ -160,29 +190,16 @@
       letter-spacing: 0.3px;
     }
     .btn:active { transform: scale(0.97); opacity: 0.88; }
-    .btn:disabled { opacity: 0.3; cursor: default; }
+    .btn:disabled { opacity: 0.3; cursor: default; transform: none !important; }
 
-    .btn-yellow { background: var(--yellow);  color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
-    .btn-green  { background: var(--green);   color: #fff; box-shadow: 0 4px 14px rgba(22,163,74,0.30); }
-    .btn-red    { background: var(--red);     color: #fff; box-shadow: 0 4px 14px rgba(220,38,38,0.25); }
-    .btn-ghost  {
-      background: var(--card);
-      color: var(--muted);
-      border: 2px solid var(--border);
-      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-      font-size: 18px;
-    }
-
-    /* START button gets yellow treatment */
-    #btn-start { background: var(--yellow); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
+    .btn-yellow { background: var(--yellow); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
+    .btn-green  { background: var(--green);  color: #fff; box-shadow: 0 4px 14px rgba(22,163,74,0.30); }
+    .btn-red    { background: var(--red);    color: #fff; box-shadow: 0 4px 14px rgba(220,38,38,0.25); }
+    .btn-ghost  { background: var(--card); color: var(--muted); border: 2px solid var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.06); font-size: 18px; }
+    #btn-start  { background: var(--yellow); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,0.35); }
 
     /* ── END DAY SCREEN ── */
-    #screen-endday {
-      padding: 24px 20px;
-      gap: 16px;
-      overflow-y: auto;
-      background: var(--bg);
-    }
+    #screen-endday { padding: 24px 20px; gap: 16px; background: var(--bg); }
     #screen-endday h2 { font-size: 24px; font-weight: 800; color: var(--text); }
     #screen-endday > p { color: var(--muted); font-size: 15px; }
 
@@ -193,42 +210,71 @@
       padding: 18px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
-    .summary-card h3 {
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 12px;
-      color: var(--muted-light);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+    .summary-card h3 { font-size: 12px; font-weight: 700; margin-bottom: 12px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 1px; }
 
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 15px;
-    }
+    .stat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 15px; }
     .stat-row:last-child { border-bottom: none; }
     .stat-row .label { color: var(--muted); }
     .stat-row .value { font-weight: 700; color: var(--text); }
 
-    .log-entry {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 15px;
-      gap: 12px;
-    }
+    .log-entry { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 15px; gap: 12px; }
     .log-entry:last-child { border-bottom: none; }
-    .log-entry .log-name { font-weight: 700; flex: 1; color: var(--text); }
-    .log-entry .log-time { color: var(--yellow-dark); font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .log-entry .log-name   { font-weight: 700; flex: 1; color: var(--text); }
+    .log-entry .log-time   { color: var(--yellow-dark); font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
     .log-entry .log-pauses { color: var(--muted-light); font-size: 13px; margin-top: 2px; }
 
-    /* ── ADD JOB MODAL ── */
+    /* ── SETTINGS SCREEN ── */
+    #screen-settings { padding: 20px; gap: 16px; background: var(--bg); }
+    #screen-settings h2 { font-size: 22px; font-weight: 800; }
+    #screen-settings p  { color: var(--muted); font-size: 15px; line-height: 1.5; }
+
+    .settings-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .settings-card h3 { font-size: 15px; font-weight: 700; color: var(--text); }
+    .settings-card p  { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    .field label { display: block; font-size: 12px; color: var(--muted-light); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 700; }
+    .field input, .field select {
+      width: 100%;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 16px;
+      padding: 13px 14px;
+      outline: none;
+      -webkit-appearance: none;
+      font-family: inherit;
+    }
+    .field input:focus, .field select:focus { border-color: var(--yellow); box-shadow: 0 0 0 3px rgba(245,158,11,0.15); }
+
+    .token-input-wrap { position: relative; }
+    .token-input-wrap input { padding-right: 48px; font-family: monospace; font-size: 14px; }
+    .toggle-vis {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; font-size: 18px; color: var(--muted-light);
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .connection-result {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
+    }
+    .connection-result.success { background: var(--green-pale); color: var(--green); display: block; }
+    .connection-result.error   { background: var(--red-pale);   color: var(--red);   display: block; }
+
+    /* ── MODALS ── */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -253,32 +299,6 @@
       box-shadow: 0 -4px 24px rgba(0,0,0,0.12);
     }
     .modal h3 { font-size: 20px; font-weight: 800; color: var(--text); }
-
-    .field label {
-      display: block;
-      font-size: 12px;
-      color: var(--muted-light);
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      font-weight: 700;
-    }
-    .field input, .field select {
-      width: 100%;
-      background: var(--bg);
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      color: var(--text);
-      font-size: 17px;
-      padding: 14px;
-      outline: none;
-      -webkit-appearance: none;
-    }
-    .field input:focus, .field select:focus {
-      border-color: var(--yellow);
-      box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
-    }
-
     .modal-actions { display: flex; gap: 10px; }
     .modal-actions .btn { font-size: 18px; padding: 16px; }
   </style>
@@ -290,7 +310,10 @@
 ═══════════════════════════════════════ -->
 <header>
   <h1>🖨️ Production</h1>
-  <div id="live-clock">--:--</div>
+  <div class="header-right">
+    <div id="live-clock">--:--</div>
+    <button id="btn-settings" onclick="showScreen('screen-settings')" title="Settings">⚙️</button>
+  </div>
 </header>
 
 <!-- ══════════════════════════════════════
@@ -298,14 +321,20 @@
 ═══════════════════════════════════════ -->
 <div id="screen-select" class="screen active">
   <h2>Select a Job</h2>
-  <p>Tap a job, then press Start.</p>
+  <p class="subtitle">Tap a job, then press Start.</p>
+
+  <div id="sync-bar" class="sync-bar offline">
+    <div class="sync-dot"></div>
+    <span id="sync-msg">Not connected to Printavo</span>
+    <button onclick="loadPrintavoJobs()" style="margin-left:auto;background:none;border:none;color:inherit;font-weight:700;cursor:pointer;font-size:13px;">Refresh</button>
+  </div>
 
   <div class="job-list" id="job-list"></div>
 
-  <button class="add-job-btn" onclick="openAddJob()">+ Add Job</button>
+  <button class="add-job-btn" onclick="openAddJob()">+ Add Job Manually</button>
 
   <div class="start-btn">
-    <button class="btn btn-green" id="btn-start" disabled onclick="startTracking()">▶ START</button>
+    <button class="btn" id="btn-start" disabled onclick="startTracking()">▶ START</button>
   </div>
 </div>
 
@@ -318,9 +347,9 @@
 
   <span class="status-badge running" id="status-badge">Running</span>
 
-  <div>
+  <div style="text-align:center;">
     <div class="elapsed-display" id="elapsed-display">00:00:00</div>
-    <div class="elapsed-label" style="text-align:center; margin-top:6px;">Time on job today</div>
+    <div class="elapsed-label" style="margin-top:6px;">Time on job today</div>
   </div>
 
   <div class="track-actions">
@@ -353,11 +382,56 @@
 </div>
 
 <!-- ══════════════════════════════════════
+     SCREEN 4 — SETTINGS
+═══════════════════════════════════════ -->
+<div id="screen-settings" class="screen">
+  <h2>⚙️ Settings</h2>
+  <p>Connect your Printavo account so jobs load automatically. Your token is saved on this device only and never shared.</p>
+
+  <div class="settings-card">
+    <h3>Printavo Connection</h3>
+    <p>Find your API token in Printavo under <strong>Account → API</strong>.</p>
+
+    <div class="field">
+      <label>Printavo Email</label>
+      <input type="email" id="set-email" placeholder="you@yourshop.com" autocomplete="email" />
+    </div>
+
+    <div class="field">
+      <label>API Token</label>
+      <div class="token-input-wrap">
+        <input type="password" id="set-token" placeholder="Paste your token here" autocomplete="off" />
+        <button class="toggle-vis" onclick="toggleTokenVis()" id="vis-btn">👁</button>
+      </div>
+    </div>
+
+    <div id="connection-result" class="connection-result"></div>
+
+    <button class="btn btn-yellow" onclick="saveAndTestPrintavo()" id="btn-connect" style="font-size:17px; padding:16px;">
+      Save &amp; Test Connection
+    </button>
+
+    <button class="btn btn-ghost" onclick="clearPrintavoSettings()" style="font-size:15px; padding:13px;">
+      Clear Saved Credentials
+    </button>
+  </div>
+
+  <div class="settings-card">
+    <h3>About</h3>
+    <p>Production Tracker MVP · Built for your shop 🖨️</p>
+  </div>
+
+  <button class="btn btn-ghost" onclick="goBackFromSettings()" style="font-size:17px; padding:16px; margin-bottom: 8px;">
+    ← Back to Jobs
+  </button>
+</div>
+
+<!-- ══════════════════════════════════════
      ADD JOB MODAL
 ═══════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
   <div class="modal">
-    <h3>Add Job</h3>
+    <h3>Add Job Manually</h3>
     <div class="field">
       <label>Job Name / Order #</label>
       <input type="text" id="input-name" placeholder="e.g. Smith Order — 144 tees" />
@@ -377,39 +451,42 @@
       </select>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal()" style="flex:1">Cancel</button>
-      <button class="btn btn-yellow" onclick="saveJob()"  style="flex:2">Add Job</button>
+      <button class="btn btn-ghost"   onclick="closeModal()" style="flex:1">Cancel</button>
+      <button class="btn btn-yellow"  onclick="saveJob()"    style="flex:2">Add Job</button>
     </div>
   </div>
 </div>
 
 <script>
 // ═══════════════════════════════════════
+// STORAGE KEYS
+// ═══════════════════════════════════════
+const JOBS_KEY    = 'pt_jobs_v1';
+const LOG_KEY     = 'pt_log_v1';
+const TOKEN_KEY   = 'pt_printavo_token';
+const EMAIL_KEY   = 'pt_printavo_email';
+
+// ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-const STATE_KEY = 'pt_state_v1';
-const JOBS_KEY  = 'pt_jobs_v1';
-const LOG_KEY   = 'pt_log_v1';
-
-let jobs        = JSON.parse(localStorage.getItem(JOBS_KEY)  || '[]');
-let dayLog      = JSON.parse(localStorage.getItem(LOG_KEY)   || '[]');
+let jobs        = JSON.parse(localStorage.getItem(JOBS_KEY) || '[]');
+let dayLog      = JSON.parse(localStorage.getItem(LOG_KEY)  || '[]');
 let selectedJob = null;
 
-// Active timer state
 let timerInterval = null;
-let sessionStart  = null;   // Date when current run segment started
-let elapsedMs     = 0;      // Total elapsed ms (excluding current segment)
+let sessionStart  = null;
+let elapsedMs     = 0;
 let isPaused      = false;
 let pauseCount    = 0;
+let previousScreen = 'screen-select';
 
 // ═══════════════════════════════════════
 // CLOCK
 // ═══════════════════════════════════════
 function updateClock() {
   const now = new Date();
-  const h = String(now.getHours()).padStart(2,'0');
-  const m = String(now.getMinutes()).padStart(2,'0');
-  document.getElementById('live-clock').textContent = `${h}:${m}`;
+  document.getElementById('live-clock').textContent =
+    String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
 }
 setInterval(updateClock, 1000);
 updateClock();
@@ -418,8 +495,193 @@ updateClock();
 // SCREENS
 // ═══════════════════════════════════════
 function showScreen(id) {
+  if (id === 'screen-settings') {
+    // Pre-fill saved credentials
+    const tok = localStorage.getItem(TOKEN_KEY) || '';
+    const em  = localStorage.getItem(EMAIL_KEY) || '';
+    document.getElementById('set-token').value = tok;
+    document.getElementById('set-email').value = em;
+    document.getElementById('connection-result').className = 'connection-result';
+    document.getElementById('connection-result').textContent = '';
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+function goBackFromSettings() {
+  showScreen('screen-select');
+  renderJobs();
+}
+
+// ═══════════════════════════════════════
+// PRINTAVO — GRAPHQL API
+// ═══════════════════════════════════════
+const PRINTAVO_URL = 'https://www.printavo.com/api/v2';
+
+async function printavoQuery(query, variables = {}) {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const email = localStorage.getItem(EMAIL_KEY);
+  if (!token || !email) throw new Error('No credentials saved. Open Settings to connect Printavo.');
+
+  const res = await fetch(PRINTAVO_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'email': email,
+      'token': token,
+    },
+    body: JSON.stringify({ query, variables }),
+  });
+
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const json = await res.json();
+  if (json.errors) throw new Error(json.errors[0]?.message || 'GraphQL error');
+  return json.data;
+}
+
+async function loadPrintavoJobs() {
+  const syncBar = document.getElementById('sync-bar');
+  const syncMsg = document.getElementById('sync-msg');
+  const token   = localStorage.getItem(TOKEN_KEY);
+  const email   = localStorage.getItem(EMAIL_KEY);
+
+  if (!token || !email) {
+    syncBar.className = 'sync-bar offline';
+    syncMsg.textContent = 'Not connected — tap ⚙️ to set up Printavo';
+    return;
+  }
+
+  syncBar.className = 'sync-bar loading';
+  syncMsg.textContent = 'Loading jobs from Printavo…';
+
+  try {
+    // Fetch orders with status not closed/completed — active production orders
+    const query = `
+      query {
+        orders(first: 50, sortOn: CREATED_AT, descending: true) {
+          nodes {
+            id
+            visualId
+            nickname
+            contact {
+              fullName
+            }
+            lineItemGroups {
+              nodes {
+                quantity
+              }
+            }
+            status {
+              name
+            }
+            productionDue
+          }
+        }
+      }
+    `;
+
+    const data = await printavoQuery(query);
+    const orders = data?.orders?.nodes || [];
+
+    // Filter to active/in-production orders (exclude closed/completed/cancelled)
+    const skipStatuses = ['closed', 'completed', 'cancelled', 'delivered', 'picked up'];
+    const activeOrders = orders.filter(o => {
+      const status = (o.status?.name || '').toLowerCase();
+      return !skipStatuses.some(s => status.includes(s));
+    });
+
+    if (activeOrders.length === 0) {
+      syncBar.className = 'sync-bar success';
+      syncMsg.textContent = 'Connected — no active orders found';
+      return;
+    }
+
+    // Convert to our job format, keeping manual jobs too
+    const printavoJobs = activeOrders.map(o => {
+      const qty = (o.lineItemGroups?.nodes || []).reduce((sum, g) => sum + (g.quantity || 0), 0);
+      const customerName = o.contact?.fullName || 'Unknown Customer';
+      const orderId = o.visualId || o.id;
+      const nickname = o.nickname ? ` — ${o.nickname}` : '';
+      const due = o.productionDue ? ` · Due ${new Date(o.productionDue).toLocaleDateString('en-US',{month:'short',day:'numeric'})}` : '';
+      return {
+        name: `#${orderId}${nickname} · ${customerName}`,
+        qty: qty || '',
+        type: 'Printavo Order',
+        meta: `${o.status?.name || 'Active'}${due}`,
+        source: 'printavo',
+        printavoId: o.id,
+      };
+    });
+
+    // Keep manual jobs, replace all printavo jobs
+    const manualJobs = jobs.filter(j => j.source !== 'printavo');
+    jobs = [...printavoJobs, ...manualJobs];
+    localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
+
+    selectedJob = null;
+    renderJobs();
+
+    syncBar.className = 'sync-bar success';
+    syncMsg.textContent = `✓ ${printavoJobs.length} active order${printavoJobs.length !== 1 ? 's' : ''} loaded`;
+  } catch (err) {
+    syncBar.className = 'sync-bar error';
+    syncMsg.textContent = `Connection failed: ${err.message}`;
+    console.error('Printavo error:', err);
+  }
+}
+
+// ═══════════════════════════════════════
+// SETTINGS — SAVE & TEST
+// ═══════════════════════════════════════
+async function saveAndTestPrintavo() {
+  const token = document.getElementById('set-token').value.trim();
+  const email = document.getElementById('set-email').value.trim();
+  const resultEl = document.getElementById('connection-result');
+  const btn = document.getElementById('btn-connect');
+
+  if (!token || !email) {
+    resultEl.className = 'connection-result error';
+    resultEl.textContent = 'Please enter both your email and API token.';
+    return;
+  }
+
+  btn.textContent = 'Testing…';
+  btn.disabled = true;
+  resultEl.className = 'connection-result';
+  resultEl.textContent = '';
+
+  // Save first so our query function can use them
+  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(EMAIL_KEY, email);
+
+  try {
+    const data = await printavoQuery(`{ account { name } }`);
+    const shopName = data?.account?.name || 'your shop';
+    resultEl.className = 'connection-result success';
+    resultEl.textContent = `✓ Connected to ${shopName}! Jobs will load automatically.`;
+    btn.textContent = '✓ Connected';
+  } catch (err) {
+    resultEl.className = 'connection-result error';
+    resultEl.textContent = `✗ ${err.message}. Double-check your email and token.`;
+    btn.textContent = 'Save & Test Connection';
+    btn.disabled = false;
+  }
+}
+
+function clearPrintavoSettings() {
+  if (!confirm('Remove saved Printavo credentials from this device?')) return;
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(EMAIL_KEY);
+  document.getElementById('set-token').value = '';
+  document.getElementById('set-email').value = '';
+  document.getElementById('connection-result').className = 'connection-result';
+  document.getElementById('btn-connect').textContent = 'Save & Test Connection';
+  document.getElementById('btn-connect').disabled = false;
+}
+
+function toggleTokenVis() {
+  const inp = document.getElementById('set-token');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
 // ═══════════════════════════════════════
@@ -428,16 +690,27 @@ function showScreen(id) {
 function renderJobs() {
   const list = document.getElementById('job-list');
   list.innerHTML = '';
+
+  if (jobs.length === 0) {
+    list.innerHTML = '<div style="color:var(--muted);font-size:15px;padding:8px 0;">No jobs yet. Connect Printavo or add one manually.</div>';
+  }
+
   jobs.forEach((job, i) => {
     const card = document.createElement('div');
     card.className = 'job-card' + (selectedJob === i ? ' selected' : '');
+    const badge = job.source === 'printavo'
+      ? `<div class="job-badge">Printavo</div>`
+      : '';
+    const metaLine = job.meta || (job.type + (job.qty ? ` · ${job.qty} pcs` : ''));
     card.innerHTML = `
       <div class="job-name">${job.name}</div>
-      <div class="job-meta">${job.type} · ${job.qty ? job.qty + ' pcs' : 'qty TBD'}</div>
+      <div class="job-meta">${metaLine}</div>
+      ${badge}
     `;
     card.onclick = () => selectJob(i);
     list.appendChild(card);
   });
+
   document.getElementById('btn-start').disabled = selectedJob === null;
 }
 
@@ -466,7 +739,7 @@ function saveJob() {
   if (!name) { alert('Please enter a job name.'); return; }
   const qty  = document.getElementById('input-qty').value.trim();
   const type = document.getElementById('input-type').value;
-  jobs.push({ name, qty, type });
+  jobs.push({ name, qty, type, source: 'manual' });
   localStorage.setItem(JOBS_KEY, JSON.stringify(jobs));
   closeModal();
   renderJobs();
@@ -479,14 +752,14 @@ function startTracking() {
   if (selectedJob === null) return;
   const job = jobs[selectedJob];
 
-  // Reset timer for this job session
   elapsedMs    = 0;
   pauseCount   = 0;
   isPaused     = false;
   sessionStart = Date.now();
 
   document.getElementById('track-name').textContent = job.name;
-  document.getElementById('track-meta').textContent = `${job.type} · ${job.qty ? job.qty + ' pcs' : ''}`;
+  const metaLine = job.meta || (job.type + (job.qty ? ` · ${job.qty} pcs` : ''));
+  document.getElementById('track-meta').textContent = metaLine;
   setBadge('running');
   document.getElementById('btn-pause').textContent = '⏸ PAUSE';
 
@@ -501,27 +774,19 @@ function startTimer() {
   clearInterval(timerInterval);
   timerInterval = setInterval(tickTimer, 500);
 }
-
 function tickTimer() {
   if (isPaused) return;
   const total = elapsedMs + (Date.now() - sessionStart);
   document.getElementById('elapsed-display').textContent = msToHMS(total);
 }
-
 function msToHMS(ms) {
-  const totalSec = Math.floor(ms / 1000);
-  const h = Math.floor(totalSec / 3600);
-  const m = Math.floor((totalSec % 3600) / 60);
-  const s = totalSec % 60;
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const s = Math.floor(ms / 1000);
+  return `${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor((s%3600)/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
 }
-
 function msToHM(ms) {
-  const totalMin = Math.floor(ms / 60000);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
+  const m = Math.floor(ms / 60000);
+  const h = Math.floor(m / 60);
+  return h > 0 ? `${h}h ${m%60}m` : `${m}m`;
 }
 
 // ═══════════════════════════════════════
@@ -529,7 +794,6 @@ function msToHM(ms) {
 // ═══════════════════════════════════════
 function togglePause() {
   if (!isPaused) {
-    // Pausing — bank the elapsed time
     elapsedMs += Date.now() - sessionStart;
     sessionStart = null;
     isPaused = true;
@@ -537,30 +801,22 @@ function togglePause() {
     setBadge('paused');
     document.getElementById('btn-pause').textContent = '▶ RESUME';
   } else {
-    // Resuming
     sessionStart = Date.now();
     isPaused = false;
     setBadge('running');
     document.getElementById('btn-pause').textContent = '⏸ PAUSE';
   }
 }
-
 function setBadge(state) {
   const badge = document.getElementById('status-badge');
-  if (state === 'running') {
-    badge.textContent = 'Running';
-    badge.className = 'status-badge running';
-  } else {
-    badge.textContent = 'Paused';
-    badge.className = 'status-badge paused';
-  }
+  badge.textContent = state === 'running' ? 'Running' : 'Paused';
+  badge.className = `status-badge ${state}`;
 }
 
 // ═══════════════════════════════════════
-// SWITCH JOB
+// SWITCH JOB / BANK SESSION
 // ═══════════════════════════════════════
 function switchJob() {
-  // Bank the current session into day log first
   bankCurrentSession();
   clearInterval(timerInterval);
   showScreen('screen-select');
@@ -572,9 +828,8 @@ function bankCurrentSession() {
   const job = jobs[selectedJob];
   let finalMs = elapsedMs;
   if (!isPaused && sessionStart) finalMs += Date.now() - sessionStart;
-  if (finalMs < 1000) return; // Don't log if < 1 second
+  if (finalMs < 1000) return;
 
-  // Merge with existing log entry for this job today
   const existing = dayLog.find(e => e.jobIndex === selectedJob);
   if (existing) {
     existing.ms += finalMs;
@@ -592,22 +847,19 @@ function endDay() {
   bankCurrentSession();
   clearInterval(timerInterval);
 
-  // Build summary
-  const totalMs = dayLog.reduce((sum, e) => sum + e.ms, 0);
-  const totalPauses = dayLog.reduce((sum, e) => sum + e.pauses, 0);
+  const totalMs     = dayLog.reduce((s, e) => s + e.ms, 0);
+  const totalPauses = dayLog.reduce((s, e) => s + e.pauses, 0);
 
   document.getElementById('sum-jobs').textContent   = dayLog.length;
   document.getElementById('sum-total').textContent  = msToHM(totalMs);
   document.getElementById('sum-pauses').textContent = totalPauses;
-
-  const now = new Date();
   document.getElementById('endday-date').textContent =
-    now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+    new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
 
   const logEl = document.getElementById('job-log');
   logEl.innerHTML = '';
   if (dayLog.length === 0) {
-    logEl.innerHTML = '<div style="color:var(--muted); padding:10px 0;">No jobs logged today.</div>';
+    logEl.innerHTML = '<div style="color:var(--muted);padding:10px 0;">No jobs logged today.</div>';
   } else {
     dayLog.forEach(entry => {
       const div = document.createElement('div');
@@ -632,19 +884,17 @@ function endDay() {
 function newDay() {
   dayLog = [];
   localStorage.setItem(LOG_KEY, JSON.stringify(dayLog));
-  selectedJob  = null;
-  elapsedMs    = 0;
-  pauseCount   = 0;
-  isPaused     = false;
-  sessionStart = null;
+  selectedJob = null; elapsedMs = 0; pauseCount = 0; isPaused = false; sessionStart = null;
   showScreen('screen-select');
   renderJobs();
+  loadPrintavoJobs(); // Refresh jobs at start of new day
 }
 
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 renderJobs();
+loadPrintavoJobs(); // Auto-load on startup if credentials exist
 </script>
 </body>
 </html>
