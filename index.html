@@ -630,7 +630,10 @@
      SCREEN 1 — SELECT JOB
 ═══════════════════════════════════════ -->
 <div id="screen-select" class="screen">
-  <h2 id="select-heading">Select a Job</h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+    <h2 id="select-heading">Select a Job</h2>
+    <button onclick="switchUser()" style="background:none;border:1.5px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;-webkit-tap-highlight-color:transparent;">↩ Switch User</button>
+  </div>
   <p class="subtitle">Tap a job, then press Start.</p>
 
   <div id="sync-bar" class="sync-bar offline">
@@ -690,10 +693,13 @@
   <div class="track-actions">
     <button class="btn btn-yellow" id="btn-pause" onclick="togglePause()">⏸ PAUSE</button>
     <div class="track-secondary">
-      <button class="btn btn-ghost" onclick="switchJob()">↩ Switch Job</button>
+      <button class="btn btn-ghost" onclick="switchJob()" style="font-size:15px;">↩ Switch Job</button>
       <button class="btn btn-red"   onclick="endSession()">⏹ END</button>
     </div>
-    <button class="btn btn-ghost" onclick="confirmEndDay()" style="font-size:16px; padding:16px; color:var(--muted);">🏁 END DAY</button>
+    <div class="track-secondary">
+      <button class="btn btn-ghost" onclick="confirmSwitchUser()" style="font-size:15px; color:var(--muted);">👤 Switch User</button>
+      <button class="btn btn-ghost" onclick="confirmEndDay()" style="font-size:15px; color:var(--muted);">🏁 END DAY</button>
+    </div>
   </div>
 </div>
 
@@ -1006,6 +1012,21 @@
 </div>
 
 <!-- ══════════════════════════════════════
+     SWITCH USER MODAL
+═══════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-switchuser">
+  <div class="modal">
+    <h3>👤 Switch User</h3>
+    <p>There's a timer running. What should happen to the current session?</p>
+    <div class="modal-actions" style="flex-direction:column; gap:10px;">
+      <button class="btn btn-yellow" onclick="doSwitchUserEndSession()" style="font-size:17px; padding:16px; width:100%;">⏹ End Session &amp; Switch</button>
+      <button class="btn btn-ghost"  onclick="doSwitchUserKeepTimer()"  style="font-size:17px; padding:16px; width:100%;">⏱ Keep Timer Running &amp; Switch</button>
+      <button class="btn btn-ghost"  onclick="closeModal('modal-switchuser')" style="font-size:16px; padding:14px; width:100%; color:var(--muted);">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
      ACTIVE TIMER WARNING MODAL
 ═══════════════════════════════════════ -->
 <div class="modal-overlay" id="modal-timerwarning">
@@ -1311,6 +1332,48 @@ function submitPin() {
       updatePinDots();
     }
   }
+}
+
+// ═══════════════════════════════════════
+// SWITCH USER
+// ═══════════════════════════════════════
+function switchUser() {
+  // From job select screen — no timer running, just log out and return to picker
+  currentEmployee = null;
+  selectedJob = null;
+  selectedStage = null;
+  updateHeaderEmployee();
+  showScreen('screen-employee');
+}
+
+function confirmSwitchUser() {
+  // From tracking screen — timer IS running, need to warn
+  if (timerInterval) {
+    openModal('modal-switchuser');
+  } else {
+    switchUser();
+  }
+}
+
+function doSwitchUserEndSession() {
+  // End current session (bank it), then switch user
+  closeModal('modal-switchuser');
+  bankCurrentSession(null);
+  clearInterval(timerInterval);
+  timerInterval = null;
+  elapsedMs = 0; isPaused = false; pauseCount = 0; sessionStart = null;
+  selectedJob = null; selectedStage = null;
+  currentEmployee = null;
+  updateHeaderEmployee();
+  showScreen('screen-employee');
+}
+
+function doSwitchUserKeepTimer() {
+  // Just go back to picker without ending timer — timer keeps running in background
+  closeModal('modal-switchuser');
+  currentEmployee = null;
+  updateHeaderEmployee();
+  showScreen('screen-employee');
 }
 
 // ═══════════════════════════════════════
